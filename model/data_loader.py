@@ -10,7 +10,6 @@ import torchvision.transforms as transforms
 # define a training image loader that specifies transforms on images. See documentation for more details.
 train_transformer = transforms.Compose([
     transforms.Resize(64),  # resize the image to 64x64 (remove if images are already 64x64)
-    transforms.RandomHorizontalFlip(),  # randomly flip image horizontally
     transforms.ToTensor()])  # transform it into a torch tensor
 
 # loader for evaluation, no horizontal flip
@@ -19,22 +18,25 @@ eval_transformer = transforms.Compose([
     transforms.ToTensor()])  # transform it into a torch tensor
 
 
-class SIGNSDataset(Dataset):
+class OCTDataset(Dataset):
     """
     A standard PyTorch definition of Dataset which defines the functions __len__ and __getitem__.
     """
     def __init__(self, data_dir, transform):
         """
         Store the filenames of the jpgs to use. Specifies transforms to apply on images.
+        NOTE: Expects all images in the split (e.g. train, dev, test) to be in one directory
 
         Args:
             data_dir: (string) directory containing the dataset
             transform: (torchvision.transforms) transformation to apply on image
         """
+        self.cond_to_label = {"CNV": 0, "DME": 1, "DRUSEN": 2, "NORMAL": 3}
         self.filenames = os.listdir(data_dir)
-        self.filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('.jpg')]
+        self.filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('.jpeg')]
 
-        self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
+        # self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
+        self.labels = [self.cond_to_label[filename.split('-')[0]] for filename in self.filenames]
         self.transform = transform
 
     def __len__(self):
@@ -73,15 +75,14 @@ def fetch_dataloader(types, data_dir, params):
 
     for split in ['train', 'val', 'test']:
         if split in types:
-            path = os.path.join(data_dir, "{}_signs".format(split))
+            path = os.path.join(data_dir, "{}".format(split))
 
-            # use the train_transformer if training data, else use eval_transformer without random flip
             if split == 'train':
-                dl = DataLoader(SIGNSDataset(path, train_transformer), batch_size=params.batch_size, shuffle=True,
+                dl = DataLoader(OCTDataset(path, train_transformer), batch_size=params.batch_size, shuffle=True,
                                         num_workers=params.num_workers,
                                         pin_memory=params.cuda)
             else:
-                dl = DataLoader(SIGNSDataset(path, eval_transformer), batch_size=params.batch_size, shuffle=False,
+                dl = DataLoader(OCTDataset(path, eval_transformer), batch_size=params.batch_size, shuffle=False,
                                 num_workers=params.num_workers,
                                 pin_memory=params.cuda)
 
