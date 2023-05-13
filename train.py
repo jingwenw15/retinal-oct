@@ -11,9 +11,11 @@ from torch.autograd import Variable
 from tqdm import tqdm
 
 import utils
-import model.net as net
+import model.resnet as net
 import model.data_loader as data_loader
 from evaluate import evaluate
+
+from model.resnet_util import get_resnet_model
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/64x64_SIGNS',
