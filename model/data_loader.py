@@ -36,7 +36,7 @@ class OCTDataset(Dataset):
         self.filenames = [os.path.join(data_dir, f) for f in self.filenames if f.endswith('.jpeg')]
 
         # self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
-        self.labels = [self.cond_to_label[filename.split('-')[0]] for filename in self.filenames]
+        self.labels = [self.cond_to_label[filename.split('-')[0].split('/')[-1]] for filename in self.filenames]
         self.transform = transform
 
     def __len__(self):
