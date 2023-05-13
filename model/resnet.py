@@ -46,6 +46,7 @@ class Net(nn.Module):
         # replace FC layer with our layer 
         self.resnet.fc = nn.Linear(in_features=in_features, out_features=4, device=device)
         self.resnet = self.resnet.to(device)
+
         
 
     def forward(self, s):
@@ -77,8 +78,9 @@ def loss_fn(outputs, labels):
     Note: you may use a standard loss function from http://pytorch.org/docs/master/nn.html#loss-functions. This example
           demonstrates how you can easily define a custom loss function.
     """
-    num_examples = outputs.size()[0]
-    return -torch.sum(outputs[range(num_examples), labels])/num_examples
+    # num_examples = outputs.size()[0]
+    # return -torch.sum(outputs[range(num_examples), labels])/num_examples
+    return F.cross_entropy(outputs, labels, reduction='mean')
 
 
 def accuracy(outputs, labels):
