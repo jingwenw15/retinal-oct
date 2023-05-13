@@ -9,10 +9,10 @@ and take the first element of the split list as the label
 '''
 
 # Step 1: combine all the photos together so I can resplit the dataset myself
-os.mkdir('data/CNV')
-os.mkdir('data/DME')
-os.mkdir('data/DRUSEN')
-os.mkdir('data/NORMAL')
+# os.mkdir('data/CNV')
+# os.mkdir('data/DME')
+# os.mkdir('data/DRUSEN')
+# os.mkdir('data/NORMAL')
 for folder in ['train', 'test']:
     for subfolder in ['CNV', 'DME', 'DRUSEN', 'NORMAL']: 
         for file in os.listdir(os.path.join('data', folder, subfolder)):
@@ -27,9 +27,9 @@ for folder in ['CNV', 'DME', 'DRUSEN', 'NORMAL']:
 print("Total number of images in dataset: ", total)
 
 # Step 3: split into train/dev/test
-os.mkdir('data/train')
-os.mkdir('data/val')
-os.mkdir('data/test')
+# os.mkdir('data/train')
+# os.mkdir('data/val')
+# os.mkdir('data/test')
 for folder in ['CNV', 'DME', 'DRUSEN', 'NORMAL']:
     files = os.listdir(os.path.join('data', folder))
     val_test_selection = random.sample(files, 1000)
