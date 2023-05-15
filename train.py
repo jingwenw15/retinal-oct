@@ -54,7 +54,8 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
     "epochs": params.num_epochs,
     "batch_size": params.batch_size,
     "dropout_rate": params.dropout_rate,
-    "architecture": 'resnet18'
+    "architecture": 'resnet18',
+    "misc": "don't freeze any layers"
     }
     )
 
