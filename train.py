@@ -15,6 +15,8 @@ import model.resnet as net
 import model.data_loader as data_loader
 from evaluate import evaluate
 
+import wandb
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data',
@@ -41,6 +43,20 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
 
     # set model to training mode
     model.train()
+
+    wandb.init(
+    # set the wandb project where this run will be logged
+    project="cs230",
+    
+    # track hyperparameters and run metadata
+    config={
+    "learning_rate": params.learning_rate,
+    "epochs": params.num_epochs,
+    "batch_size": params.batch_size,
+    "dropout_rate": params.dropout_rate,
+    "architecture": 'resnet18'
+    }
+    )
 
     # summary for current training loop and a running average object for loss
     summ = []
@@ -91,6 +107,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
                                      for x in summ]) for metric in summ[0]}
     metrics_string = " ; ".join("{}: {:05.3f}".format(k, v)
                                 for k, v in metrics_mean.items())
+    wandb.log(metrics_mean)
     logging.info("- Train metrics: " + metrics_string)
 
 
