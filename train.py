@@ -15,7 +15,6 @@ import model.resnet as net
 import model.data_loader as data_loader
 from evaluate import evaluate
 
-from model.resnet_util import get_resnet_model
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data',
@@ -26,7 +25,7 @@ parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
 
-
+# TODO: upsample the classes with fewer samples 
 def train(model, optimizer, loss_fn, dataloader, metrics, params):
     """Train the model on `num_steps` batches
 

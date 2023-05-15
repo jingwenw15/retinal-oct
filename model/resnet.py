@@ -40,8 +40,8 @@ class Net(nn.Module):
         in_features = self.resnet.fc.in_features
 
         # freeze all layers except last 
-        for param in self.resnet.parameters():
-            param.requires_grad = False 
+        # for param in self.resnet.parameters():
+        #     param.requires_grad = False 
 
         # replace FC layer with our layer 
         self.resnet.fc = nn.Linear(in_features=in_features, out_features=4, device=device)
