@@ -55,6 +55,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
     "batch_size": params.batch_size,
     "dropout_rate": params.dropout_rate,
     "architecture": 'resnet18',
+    "image_size": '64x64',
     "misc": "don't freeze any layers"
     }
     )
@@ -145,6 +146,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
 
         # Evaluate for one epoch on validation set
         val_metrics = evaluate(model, loss_fn, val_dataloader, metrics, params)
+        wandb.log(val_metrics)
 
         val_acc = val_metrics['accuracy']
         is_best = val_acc >= best_val_acc
