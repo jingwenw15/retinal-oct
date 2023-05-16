@@ -99,7 +99,7 @@ def accuracy(outputs, labels):
 def cnv_acc(outputs, labels): 
     outputs = np.argmax(outputs, axis=1) 
     labeled_cnv = (labels == 0)
-    return np.sum(outputs[labeled_cnv] == 0)/float(labeled_cnv.size)    
+    return np.sum(outputs[labeled_cnv] == 0)/float(np.sum(labeled_cnv))    
 
 
 # maintain all metrics required in this dictionary- these are used in the training and evaluation loops
