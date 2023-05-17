@@ -68,7 +68,7 @@ class OCTDataset(Dataset):
             image_name = self.dme_filenames[idx % len(self.dme_filenames)]
             label = 1
         elif idx % 4 == 2: 
-            image_name = self.drusen_filenames[idx % len(self.dme_filenames)]
+            image_name = self.drusen_filenames[idx % len(self.drusen_filenames)]
             label = 2
         else: 
             image_name = self.normal_filenames[idx % len(self.normal_filenames)]
