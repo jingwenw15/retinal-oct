@@ -38,15 +38,16 @@ class Net(nn.Module):
 
         self.resnet = models.resnet18(weights='IMAGENET1K_V1') # TODO: later on, don't use pretrained weights
         in_features = self.resnet.fc.in_features
-        self.resnet.layer4 = nn.Sequential(nn.Identity())
+        self.resnet.layer3 = nn.Sequential(nn.Identity()) # take out layer 3 
+        self.resnet.layer4 = nn.Sequential(nn.Identity()) # take out layer 4 
         
         # freeze all layers except last 
         # for param in self.resnet.parameters():
         #     param.requires_grad = False 
 
         # replace FC layer with our layer 
-        self.resnet.fc = nn.Linear(in_features=256, out_features=4, device=device)
-        # print(self.resnet)
+        self.resnet.fc = nn.Linear(in_features=128, out_features=4, device=device)
+        print(self.resnet)
         self.resnet = self.resnet.to(device)
 
         
