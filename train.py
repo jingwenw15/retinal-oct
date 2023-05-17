@@ -11,7 +11,8 @@ from torch.autograd import Variable
 from tqdm import tqdm
 
 import utils
-import model.resnet as net
+import model.resnet as resnet
+import model.vgg as vgg
 import model.data_loader as data_loader
 from evaluate import evaluate
 
@@ -26,9 +27,9 @@ parser.add_argument('--model_dir', default='experiments/base_model',
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
+parser.add_argument('--model', default='vgg')
 
-# TODO: upsample the classes with fewer samples 
-def train(model, optimizer, loss_fn, dataloader, metrics, params):
+def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
 
     Args:
@@ -54,7 +55,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
     "epochs": params.num_epochs,
     "batch_size": params.batch_size,
     "dropout_rate": params.dropout_rate,
-    "architecture": 'resnet18',
+    "architecture": model_name,
     "image_size": '64x64',
     "misc": "don't freeze any layers"
     }
@@ -114,7 +115,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
 
 
 def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_fn, metrics, params, model_dir,
-                       restore_file=None):
+                       restore_file=None, model_name="vgg"):
     """Train the model and evaluate every epoch.
 
     Args:
@@ -142,7 +143,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
 
         # compute number of batches in one epoch (one full pass over the training set)
-        train(model, optimizer, loss_fn, train_dataloader, metrics, params)
+        train(model, optimizer, loss_fn, train_dataloader, metrics, params, model_name)
 
         # Evaluate for one epoch on validation set
         val_metrics = evaluate(model, loss_fn, val_dataloader, metrics, params)
@@ -206,6 +207,11 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # Define the model and optimizer
+    net = None 
+    if args.model == "vgg": 
+        net = vgg
+    elif args.model == "resnet":
+        net = resnet
     model = net.Net(params).cuda() if params.cuda else net.Net(params)
     optimizer = optim.Adam(model.parameters(), lr=params.learning_rate)
 
@@ -216,4 +222,4 @@ if __name__ == '__main__':
     # Train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
     train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
-                       args.restore_file)
+                       args.restore_file, args.model)
