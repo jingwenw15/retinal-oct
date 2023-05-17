@@ -60,18 +60,24 @@ class OCTDataset(Dataset):
             label: (int) corresponding label of image
         """
         image_name = None
+        label = None
         if idx % 4 == 0: 
             image_name = self.cnv_filenames[idx % len(self.cnv_filenames)]
+            label = 0
         elif idx % 4 == 1:
             image_name = self.dme_filenames[idx % len(self.dme_filenames)]
+            label = 1
         elif idx % 4 == 2: 
             image_name = self.drusen_filenames[idx % len(self.dme_filenames)]
+            label = 2
         else: 
             image_name = self.normal_filenames[idx % len(self.normal_filenames)]
+            label = 3
         image = Image.open(image_name).convert("RGB")  # PIL image
         # image = Image.open(self.filenames[idx]).convert("RGB")  # PIL image
         image = self.transform(image)
-        return image, self.labels[idx]
+        # return image, self.labels[idx]
+        return image, label
 
 
 def fetch_dataloader(types, data_dir, params):
