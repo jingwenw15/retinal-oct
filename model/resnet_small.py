@@ -38,7 +38,7 @@ class Net(nn.Module):
 
         self.resnet = models.resnet18(weights='IMAGENET1K_V1') # TODO: later on, don't use pretrained weights
         in_features = self.resnet.fc.in_features
-        del self.resnet.layer4
+        self.resnet.layer4 = nn.Sequential(nn.Identity())
         
         # freeze all layers except last 
         # for param in self.resnet.parameters():
