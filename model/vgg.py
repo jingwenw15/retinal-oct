@@ -92,7 +92,6 @@ def accuracy(outputs, labels):
     Returns: (float) accuracy in [0,1]
     """
     outputs = np.argmax(outputs, axis=1)
-    print(outputs, labels)
     return np.sum(outputs==labels)/float(labels.size)
 
 def cnv_acc(outputs, labels): 
