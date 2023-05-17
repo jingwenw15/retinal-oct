@@ -36,7 +36,7 @@ class Net(nn.Module):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("Current device:", device)
 
-        self.vgg = models.vgg16(weights='IMAGENET1K_V1')
+        self.vgg = models.vgg16(weights=models.VGG16_Weights.DEFAULT)
         in_features = self.vgg.classifier[6].in_features
 
         # freeze all layers except last 
@@ -57,7 +57,7 @@ class Net(nn.Module):
             s: (Variable) contains a batch of images, of dimension batch_size x 3 x 64 x 64 .
 
         Returns:
-            out: (Variable) dimension batch_size x 6 with the log probabilities for the labels of each image.
+            out: (Variable) dimension batch_size x 4 with the log probabilities for the labels of each image.
 
         Note: the dimensions after each step are provided
         """
@@ -69,8 +69,8 @@ def loss_fn(outputs, labels):
     Compute the cross entropy loss given outputs and labels.
 
     Args:
-        outputs: (Variable) dimension batch_size x 6 - output of the model
-        labels: (Variable) dimension batch_size, where each element is a value in [0, 1, 2, 3, 4, 5]
+        outputs: (Variable) dimension batch_size x 4 - output of the model
+        labels: (Variable) dimension batch_size, where each element is a value in [0, 1, 2, 3]
 
     Returns:
         loss (Variable): cross entropy loss for all images in the batch
@@ -92,6 +92,7 @@ def accuracy(outputs, labels):
     Returns: (float) accuracy in [0,1]
     """
     outputs = np.argmax(outputs, axis=1)
+    print(outputs, labels)
     return np.sum(outputs==labels)/float(labels.size)
 
 def cnv_acc(outputs, labels): 
