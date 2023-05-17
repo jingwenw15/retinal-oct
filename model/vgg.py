@@ -37,14 +37,14 @@ class Net(nn.Module):
         print("Current device:", device)
 
         self.vgg = models.vgg16(weights='IMAGENET1K_V1')
-        in_features = self.vgg.fc.in_features
+        in_features = self.vgg.classifier[6].in_features
 
         # freeze all layers except last 
         # for param in self.vgg.parameters():
         #     param.requires_grad = False 
 
         # replace FC layer with our layer 
-        self.vgg.fc = nn.Linear(in_features=in_features, out_features=4, device=device)
+        self.vgg.classifier[6] = nn.Linear(in_features=in_features, out_features=4, device=device)
         self.vgg = self.vgg.to(device)
 
         
@@ -124,3 +124,5 @@ metrics = {
     'normal': normal_acc
     # could add more metrics such as accuracy for each token type
 }
+
+vgg = Net({})
