@@ -25,7 +25,6 @@ class OCTDataset(Dataset):
     def __init__(self, data_dir, transform):
         """
         Store the filenames of the jpgs to use. Specifies transforms to apply on images.
-        NOTE: Expects all images in the split (e.g. train, dev, test) to be in one directory
 
         Args:
             data_dir: (string) directory containing the dataset
@@ -37,13 +36,19 @@ class OCTDataset(Dataset):
 
         # self.labels = [int(os.path.split(filename)[-1][0]) for filename in self.filenames]
         self.labels = [self.cond_to_label[filename.split('-')[0].split('/')[-1]] for filename in self.filenames]
+        self.cnv_filenames = [f for i, f in enumerate(self.filenames) if self.labels[i] == 0]
+        self.dme_filenames = [f for i, f in enumerate(self.filenames) if self.labels[i] == 1]
+        self.drusen_filenames = [f for i, f in enumerate(self.filenames) if self.labels[i] == 2]
+        self.normal_filenames = [f for i, f in enumerate(self.filenames) if self.labels[i] == 3]
         self.transform = transform
 
     def __len__(self):
         # return size of dataset
-        return len(self.filenames)
+        # return len(self.filenames)
+        return len(self.cnv_filenames) * 4
 
     def __getitem__(self, idx):
+        # fix to balance dataset 
         """
         Fetch index idx image and labels from dataset. Perform transforms on image.
 
@@ -54,7 +59,17 @@ class OCTDataset(Dataset):
             image: (Tensor) transformed image
             label: (int) corresponding label of image
         """
-        image = Image.open(self.filenames[idx]).convert("RGB")  # PIL image
+        image_name = None
+        if idx % 4 == 0: 
+            image_name = self.cnv_filenames[idx % len(self.cnv_filenames)]
+        elif idx % 4 == 1:
+            image_name = self.dme_filenames[idx % len(self.dme_filenames)]
+        elif idx % 4 == 2: 
+            image_name = self.drusen_filenames[idx % len(self.dme_filenames)]
+        else: 
+            image_name = self.normal_filenames[idx % len(self.normal_filenames)]
+        image = Image.open(image_name).convert("RGB")  # PIL image
+        # image = Image.open(self.filenames[idx]).convert("RGB")  # PIL image
         image = self.transform(image)
         return image, self.labels[idx]
 

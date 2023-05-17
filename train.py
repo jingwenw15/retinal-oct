@@ -105,7 +105,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
             t.update()
 
     # compute mean of all metrics in summary
-    metrics_mean = {metric: np.mean([x[metric]
+    metrics_mean = {metric + ' train': np.mean([x[metric]
                                      for x in summ]) for metric in summ[0]}
     metrics_string = " ; ".join("{}: {:05.3f}".format(k, v)
                                 for k, v in metrics_mean.items())
