@@ -38,6 +38,7 @@ class Net(nn.Module):
 
         self.resnet = models.resnet18(weights='IMAGENET1K_V1')
         in_features = self.resnet.fc.in_features
+        print(self.resnet)
 
         # freeze all layers except last 
         # for param in self.resnet.parameters():

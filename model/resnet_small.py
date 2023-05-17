@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision import datasets, models, transforms
 
 
 class Net(nn.Module):
@@ -32,24 +33,23 @@ class Net(nn.Module):
             params: (Params) contains num_channels
         """
         super(Net, self).__init__()
-        self.num_channels = params.num_channels
-        
-        # each of the convolution layers below have the arguments (input_channels, output_channels, filter_size,
-        # stride, padding). We also include batch normalisation layers that help stabilise training.
-        # For more details on how to use these layers, check out the documentation.
-        self.conv1 = nn.Conv2d(3, self.num_channels, 3, stride=1, padding=1)
-        self.bn1 = nn.BatchNorm2d(self.num_channels)
-        self.conv2 = nn.Conv2d(self.num_channels, self.num_channels*2, 3, stride=1, padding=1)
-        self.bn2 = nn.BatchNorm2d(self.num_channels*2)
-        self.conv3 = nn.Conv2d(self.num_channels*2, self.num_channels*4, 3, stride=1, padding=1)
-        self.bn3 = nn.BatchNorm2d(self.num_channels*4)
-        self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2, padding='same')
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print("Current device:", device)
 
-        # 2 fully connected layers to transform the output of the convolution layers to the final output
-        self.fc1 = nn.Linear(8*8*self.num_channels*4, self.num_channels*4)
-        self.fcbn1 = nn.BatchNorm1d(self.num_channels*4)
-        self.fc2 = nn.Linear(self.num_channels*4, 6)       
-        self.dropout_rate = params.dropout_rate
+        self.resnet = models.resnet18(weights='IMAGENET1K_V1') # TODO: later on, don't use pretrained weights
+        in_features = self.resnet.fc.in_features
+        del self.resnet.layer4
+        
+        # freeze all layers except last 
+        # for param in self.resnet.parameters():
+        #     param.requires_grad = False 
+
+        # replace FC layer with our layer 
+        self.resnet.fc = nn.Linear(in_features=256, out_features=4, device=device)
+        # print(self.resnet)
+        self.resnet = self.resnet.to(device)
+
+        
 
     def forward(self, s):
         """
@@ -63,26 +63,7 @@ class Net(nn.Module):
 
         Note: the dimensions after each step are provided
         """
-        #                                                  -> batch_size x 3 x 64 x 64
-        # we apply the convolution layers, followed by batch normalisation, maxpool and relu x 3
-        s = self.bn1(self.conv1(s))                         # batch_size x num_channels x 64 x 64
-        s = F.relu(F.max_pool2d(s, 2))                      # batch_size x num_channels x 32 x 32
-        s = self.bn2(self.conv2(s))                         # batch_size x num_channels*2 x 32 x 32
-        s = F.relu(F.max_pool2d(s, 2))                      # batch_size x num_channels*2 x 16 x 16
-        s = self.bn3(self.conv3(s))                         # batch_size x num_channels*4 x 16 x 16
-        s = F.relu(F.max_pool2d(s, 2))                      # batch_size x num_channels*4 x 8 x 8
-
-        # flatten the output for each image
-        s = s.view(-1, 8*8*self.num_channels*4)             # batch_size x 8*8*num_channels*4
-
-        # apply 2 fully connected layers with dropout
-        s = F.dropout(F.relu(self.fcbn1(self.fc1(s))), 
-            p=self.dropout_rate, training=self.training)    # batch_size x self.num_channels*4
-        s = self.fc2(s)                                     # batch_size x 6
-
-        # apply log softmax on each image's output (this is recommended over applying softmax
-        # since it is numerically more stable)
-        return F.log_softmax(s, dim=1)
+        return self.resnet(s)
 
 
 def loss_fn(outputs, labels):
@@ -99,8 +80,9 @@ def loss_fn(outputs, labels):
     Note: you may use a standard loss function from http://pytorch.org/docs/master/nn.html#loss-functions. This example
           demonstrates how you can easily define a custom loss function.
     """
-    num_examples = outputs.size()[0]
-    return -torch.sum(outputs[range(num_examples), labels])/num_examples
+    # num_examples = outputs.size()[0]
+    # return -torch.sum(outputs[range(num_examples), labels])/num_examples
+    return F.cross_entropy(outputs, labels, reduction='mean')
 
 
 def accuracy(outputs, labels):
@@ -108,17 +90,43 @@ def accuracy(outputs, labels):
     Compute the accuracy, given the outputs and labels for all images.
 
     Args:
-        outputs: (np.ndarray) dimension batch_size x 6 - log softmax output of the model
-        labels: (np.ndarray) dimension batch_size, where each element is a value in [0, 1, 2, 3, 4, 5]
+        outputs: (np.ndarray) dimension batch_size x 4 - log softmax output of the model
+        labels: (np.ndarray) dimension batch_size, where each element is a value in [0, 1, 2, 3]
 
     Returns: (float) accuracy in [0,1]
     """
     outputs = np.argmax(outputs, axis=1)
     return np.sum(outputs==labels)/float(labels.size)
 
+def cnv_acc(outputs, labels): 
+    outputs = np.argmax(outputs, axis=1) 
+    labeled_cnv = (labels == 0)
+    return np.sum(outputs[labeled_cnv] == 0)/float(np.sum(labeled_cnv))    
+
+def dme_acc(outputs, labels): 
+    outputs = np.argmax(outputs, axis=1) 
+    labeled_dme = (labels == 1)
+    return np.sum(outputs[labeled_dme] == 1)/float(np.sum(labeled_dme))    
+
+def drusen_acc(outputs, labels): 
+    outputs = np.argmax(outputs, axis=1) 
+    labeled_drusen = (labels == 2)
+    return np.sum(outputs[labeled_drusen] == 2)/float(np.sum(labeled_drusen))    
+
+def normal_acc(outputs, labels): 
+    outputs = np.argmax(outputs, axis=1) 
+    labeled_normal = (labels == 3)
+    return np.sum(outputs[labeled_normal] == 3)/float(np.sum(labeled_normal))    
+
 
 # maintain all metrics required in this dictionary- these are used in the training and evaluation loops
 metrics = {
     'accuracy': accuracy,
+    'cnv': cnv_acc,
+    'dme': dme_acc,
+    'drusen': drusen_acc,
+    'normal': normal_acc
     # could add more metrics such as accuracy for each token type
 }
+
+r = Net({})

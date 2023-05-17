@@ -1,4 +1,4 @@
-"""Train the model"""
+"""Train the model KNOWLEDGE DISTILLATION - TODO: WIP!! """
 
 import argparse
 import logging
@@ -13,7 +13,6 @@ from tqdm import tqdm
 import utils
 import model.resnet as resnet
 import model.vgg as vgg
-import model.resnet_small as resnet_small
 import model.data_loader as data_loader
 from evaluate import evaluate
 
@@ -25,7 +24,7 @@ parser.add_argument('--data_dir', default='data',
                     help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/base_model',
                     help="Directory containing params.json")
-parser.add_argument('--restore_file', default=None,
+parser.add_argument('--restore_file', default='best',
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
 parser.add_argument('--model', default='vgg')
@@ -213,8 +212,6 @@ if __name__ == '__main__':
         net = vgg
     elif args.model == "resnet":
         net = resnet
-    elif args.model == "resnet_small":
-        net = resnet_small
     model = net.Net(params).cuda() if params.cuda else net.Net(params)
     optimizer = optim.Adam(model.parameters(), lr=params.learning_rate)
 
