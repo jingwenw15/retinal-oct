@@ -1,26 +1,11 @@
-# Hand Signs Recognition with PyTorch
+# Retinal OCT Disease Prediction 
 
-*Authors: Surag Nair, Olivier Moindrot and Guillaume Genthial*
 
-Take the time to read the [tutorials](https://cs230-stanford.github.io/project-starter-code.html).
+Adapted from [here](https://cs230-stanford.github.io/project-starter-code.html).
 
-Note: all scripts must be run in folder `pytorch/vision`.
-
-## Requirements
-
-We recommend using python3 and a virtual env. See instructions [here](https://cs230-stanford.github.io/project-starter-code.html).
-
-```
-virtualenv -p python3 .env
-source .env/bin/activate
-pip install -r requirements.txt
-```
-
-When you're done working on the project, deactivate the virtual environment with `deactivate`.
 
 ## Task
 
-Given an image of a hand doing a sign representing 0, 1, 2, 3, 4 or 5, predict the correct label.
 
 
 ## Download the SIGNS dataset
