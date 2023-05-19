@@ -9,26 +9,12 @@ from torchvision import datasets, models, transforms
 
 class Net(nn.Module):
     """
-    This is the standard way to define your own network in PyTorch. You typically choose the components
-    (e.g. LSTMs, linear layers etc.) of your network in the __init__ function. You then apply these layers
-    on the input step-by-step in the forward function. You can use torch.nn.functional to apply functions
-
-    such as F.relu, F.sigmoid, F.softmax, F.max_pool2d. Be careful to ensure your dimensions are correct after each
-    step. You are encouraged to have a look at the network in pytorch/nlp/model/net.py to get a better sense of how
-    you can go about defining your own network.
-
-    The documentation for all the various components available o you is here: http://pytorch.org/docs/master/nn.html
+    Define a Net which will contain the ResNet18 model that we will perform transfer learning on.
+    http://pytorch.org/docs/master/nn.html
     """
 
     def __init__(self, params):
         """
-        We define an convolutional network that predicts the sign from an image. The components
-        required are:
-
-        - an embedding layer: this layer maps each index in range(params.vocab_size) to a params.embedding_dim vector
-        - lstm: applying the LSTM on the sequential input returns an output for each token in the sentence
-        - fc: a fully connected layer that converts the LSTM output for each token to a distribution over NER tags
-
         Args:
             params: (Params) contains num_channels
         """
@@ -55,10 +41,10 @@ class Net(nn.Module):
         This function defines how we use the components of our network to operate on an input batch.
 
         Args:
-            s: (Variable) contains a batch of images, of dimension batch_size x 3 x 64 x 64 .
+            s: (Variable) contains a batch of images, of dimension batch_size x 64 x 64 .
 
         Returns:
-            out: (Variable) dimension batch_size x 6 with the log probabilities for the labels of each image.
+            out: (Variable) dimension batch_size x 4 with the log probabilities for the labels of each image.
 
         Note: the dimensions after each step are provided
         """
@@ -70,17 +56,12 @@ def loss_fn(outputs, labels):
     Compute the cross entropy loss given outputs and labels.
 
     Args:
-        outputs: (Variable) dimension batch_size x 6 - output of the model
-        labels: (Variable) dimension batch_size, where each element is a value in [0, 1, 2, 3, 4, 5]
+        outputs: (Variable) dimension batch_size x 4 - output of the model
+        labels: (Variable) dimension batch_size, where each element is a value in [0, 1, 2, 3]
 
     Returns:
         loss (Variable): cross entropy loss for all images in the batch
-
-    Note: you may use a standard loss function from http://pytorch.org/docs/master/nn.html#loss-functions. This example
-          demonstrates how you can easily define a custom loss function.
     """
-    # num_examples = outputs.size()[0]
-    # return -torch.sum(outputs[range(num_examples), labels])/num_examples
     return F.cross_entropy(outputs, labels, reduction='mean')
 
 
@@ -125,5 +106,4 @@ metrics = {
     'dme': dme_acc,
     'drusen': drusen_acc,
     'normal': normal_acc
-    # could add more metrics such as accuracy for each token type
 }

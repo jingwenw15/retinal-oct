@@ -42,30 +42,15 @@ for folder in ['CNV', 'DME', 'DRUSEN', 'NORMAL']:
     for cur_file in remaining_files:
         os.rename(os.path.join('data', folder, cur_file), os.path.join('data', 'train', cur_file)) 
 
-# CNV: 37216
-# DME: 11422
-# DRUSEN: 8620
-# NORMAL: 26347
-# TOTAL: 83605 
-
-# for dev and test: take 500 from each category
-
 '''
+Train: 79609
+Dev: 2000
+Test: 2000
+
 Train: 
-CNV: 12000
-DME: 10000
-DRUSEN: 7800 
-NORMAL: 11000
-
-Dev: 
-CNV: 
-DME:
-DRUSEN:
-NORMAL: 
-
-Test:
-CNV:
-DME:
-DRUSEN:
-NORMAL: 
+CNV: 36217
+DME: 10423
+NORMAL: 25348
+DRUSEN: 7621
 '''
+# for dev and test: take 500 from each category

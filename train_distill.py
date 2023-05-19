@@ -18,6 +18,8 @@ from evaluate import evaluate
 
 import wandb
 
+# TODO: WORK IN PROGRESS!!!!! 
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data',
@@ -57,7 +59,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     "dropout_rate": params.dropout_rate,
     "architecture": model_name,
     "image_size": '64x64',
-    "misc": "don't freeze any layers"
+    "misc": "knowledge distillation"
     }
     )
 
