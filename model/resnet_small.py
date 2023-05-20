@@ -24,6 +24,8 @@ class Net(nn.Module):
 
         self.resnet = models.resnet18(weights='IMAGENET1K_V1') # TODO: later on, don't use pretrained weights
         in_features = self.resnet.fc.in_features
+        
+        # NOTE: Citation = https://discuss.pytorch.org/t/how-to-delete-layer-in-pretrained-model/17648/18
         # self.resnet.layer1 = nn.Sequential(nn.Identity()) // bad results here 
         self.resnet.layer2 = nn.Sequential(nn.Identity()) # take out layer 2
         self.resnet.layer3 = nn.Sequential(nn.Identity()) # take out layer 3 
@@ -51,6 +53,7 @@ class Net(nn.Module):
             out: (Variable) dimension batch_size x 4 with the log probabilities for the labels of each image.
 
         Note: the dimensions after each step are provided
+        NOTE: Citation/Reference = https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
         """
         return self.resnet(s)
 

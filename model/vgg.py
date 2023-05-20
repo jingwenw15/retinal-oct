@@ -46,6 +46,8 @@ class Net(nn.Module):
             out: (Variable) dimension batch_size x 4 with the log probabilities for the labels of each image.
 
         Note: the dimensions after each step are provided
+
+        NOTE: Citation/Reference = https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
         """
         return self.vgg(s)
 
