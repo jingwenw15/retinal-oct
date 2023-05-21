@@ -124,5 +124,5 @@ metrics = {
     # could add more metrics such as accuracy for each token type
 }
 
-t = Net({"num_channels": 32})
-print(t)
+# t = Net({"num_channels": 32})
+# print(t)
