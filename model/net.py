@@ -33,6 +33,7 @@ class Net(nn.Module):
         """
         super(Net, self).__init__()
         self.num_channels = params.num_channels
+        # self.num_channels = 32 # TODO: comment this out and restore original
         
         # each of the convolution layers below have the arguments (input_channels, output_channels, filter_size,
         # stride, padding). We also include batch normalisation layers that help stabilise training.
@@ -43,13 +44,13 @@ class Net(nn.Module):
         self.bn2 = nn.BatchNorm2d(self.num_channels*2)
         self.conv3 = nn.Conv2d(self.num_channels*2, self.num_channels*4, 3, stride=1, padding=1)
         self.bn3 = nn.BatchNorm2d(self.num_channels*4)
-        self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2, padding='same')
 
         # 2 fully connected layers to transform the output of the convolution layers to the final output
         self.fc1 = nn.Linear(8*8*self.num_channels*4, self.num_channels*4)
         self.fcbn1 = nn.BatchNorm1d(self.num_channels*4)
-        self.fc2 = nn.Linear(self.num_channels*4, 6)       
+        self.fc2 = nn.Linear(self.num_channels*4, 4)       
         self.dropout_rate = params.dropout_rate
+        # self.dropout_rate = 0.5 # TODO: replace this 
 
     def forward(self, s):
         """
@@ -59,7 +60,7 @@ class Net(nn.Module):
             s: (Variable) contains a batch of images, of dimension batch_size x 3 x 64 x 64 .
 
         Returns:
-            out: (Variable) dimension batch_size x 6 with the log probabilities for the labels of each image.
+            out: (Variable) dimension batch_size x 4 with the log probabilities for the labels of each image.
 
         Note: the dimensions after each step are provided
         """
@@ -70,7 +71,7 @@ class Net(nn.Module):
         s = self.bn2(self.conv2(s))                         # batch_size x num_channels*2 x 32 x 32
         s = F.relu(F.max_pool2d(s, 2))                      # batch_size x num_channels*2 x 16 x 16
         s = self.bn3(self.conv3(s))                         # batch_size x num_channels*4 x 16 x 16
-        s = F.relu(F.max_pool2d(s, 2))                      # batch_size x num_channels*4 x 8 x 8
+        s = F.max_pool2d(s, 2)                      # batch_size x num_channels*4 x 8 x 8
 
         # flatten the output for each image
         s = s.view(-1, 8*8*self.num_channels*4)             # batch_size x 8*8*num_channels*4
@@ -78,7 +79,7 @@ class Net(nn.Module):
         # apply 2 fully connected layers with dropout
         s = F.dropout(F.relu(self.fcbn1(self.fc1(s))), 
             p=self.dropout_rate, training=self.training)    # batch_size x self.num_channels*4
-        s = self.fc2(s)                                     # batch_size x 6
+        s = self.fc2(s)                                     # batch_size x 4
 
         # apply log softmax on each image's output (this is recommended over applying softmax
         # since it is numerically more stable)
@@ -90,8 +91,8 @@ def loss_fn(outputs, labels):
     Compute the cross entropy loss given outputs and labels.
 
     Args:
-        outputs: (Variable) dimension batch_size x 6 - output of the model
-        labels: (Variable) dimension batch_size, where each element is a value in [0, 1, 2, 3, 4, 5]
+        outputs: (Variable) dimension batch_size x 4 - output of the model
+        labels: (Variable) dimension batch_size, where each element is a value in [0, 1, 2, 3]
 
     Returns:
         loss (Variable): cross entropy loss for all images in the batch
@@ -99,8 +100,8 @@ def loss_fn(outputs, labels):
     Note: you may use a standard loss function from http://pytorch.org/docs/master/nn.html#loss-functions. This example
           demonstrates how you can easily define a custom loss function.
     """
-    num_examples = outputs.size()[0]
-    return -torch.sum(outputs[range(num_examples), labels])/num_examples
+    return F.cross_entropy(outputs, labels, reduction='mean')
+
 
 
 def accuracy(outputs, labels):
@@ -122,3 +123,6 @@ metrics = {
     'accuracy': accuracy,
     # could add more metrics such as accuracy for each token type
 }
+
+t = Net({"num_channels": 32})
+print(t)

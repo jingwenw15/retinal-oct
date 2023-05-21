@@ -41,7 +41,7 @@ class Net(nn.Module):
         This function defines how we use the components of our network to operate on an input batch.
 
         Args:
-            s: (Variable) contains a batch of images, of dimension batch_size x 64 x 64 .
+            s: (Variable) contains a batch of images, of dimension batch_size x 3 x 64 x 64 .
 
         Returns:
             out: (Variable) dimension batch_size x 4 with the log probabilities for the labels of each image.

@@ -13,6 +13,7 @@ from tqdm import tqdm
 import utils
 import model.resnet as resnet
 import model.vgg as vgg
+import model.net as custom_net
 import model.resnet_small as resnet_small
 import model.data_loader as data_loader
 from evaluate import evaluate
@@ -215,6 +216,8 @@ if __name__ == '__main__':
         net = resnet
     elif args.model == "resnet_small":
         net = resnet_small
+    elif args.model == "custom": 
+        net = custom_net
     model = net.Net(params).cuda() if params.cuda else net.Net(params)
     optimizer = optim.Adam(model.parameters(), lr=params.learning_rate)
 
