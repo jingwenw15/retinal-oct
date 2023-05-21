@@ -117,11 +117,33 @@ def accuracy(outputs, labels):
     outputs = np.argmax(outputs, axis=1)
     return np.sum(outputs==labels)/float(labels.size)
 
+def cnv_acc(outputs, labels): 
+    outputs = np.argmax(outputs, axis=1) 
+    labeled_cnv = (labels == 0)
+    return np.sum(outputs[labeled_cnv] == 0)/float(np.sum(labeled_cnv))    
+
+def dme_acc(outputs, labels): 
+    outputs = np.argmax(outputs, axis=1) 
+    labeled_dme = (labels == 1)
+    return np.sum(outputs[labeled_dme] == 1)/float(np.sum(labeled_dme))    
+
+def drusen_acc(outputs, labels): 
+    outputs = np.argmax(outputs, axis=1) 
+    labeled_drusen = (labels == 2)
+    return np.sum(outputs[labeled_drusen] == 2)/float(np.sum(labeled_drusen))    
+
+def normal_acc(outputs, labels): 
+    outputs = np.argmax(outputs, axis=1) 
+    labeled_normal = (labels == 3)
+    return np.sum(outputs[labeled_normal] == 3)/float(np.sum(labeled_normal))   
 
 # maintain all metrics required in this dictionary- these are used in the training and evaluation loops
 metrics = {
     'accuracy': accuracy,
-    # could add more metrics such as accuracy for each token type
+    'cnv': cnv_acc,
+    'dme': dme_acc,
+    'drusen': drusen_acc,
+    'normal': normal_acc
 }
 
 # t = Net({"num_channels": 32})

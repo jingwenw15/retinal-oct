@@ -110,7 +110,6 @@ metrics = {
     'dme': dme_acc,
     'drusen': drusen_acc,
     'normal': normal_acc
-    # could add more metrics such as accuracy for each token type
 }
 
 vgg = Net({})
