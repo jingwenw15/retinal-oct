@@ -103,7 +103,6 @@ def loss_fn(outputs, labels):
     return F.cross_entropy(outputs, labels, reduction='mean')
 
 
-
 def accuracy(outputs, labels):
     """
     Compute the accuracy, given the outputs and labels for all images.
