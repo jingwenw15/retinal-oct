@@ -102,7 +102,7 @@ def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, m
     logging.info("- Train metrics: " + metrics_string)
 
 
-def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optimizer, teacher_optimizer, loss_fn, metrics, params, model_dir,
+def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optimizer, teacher_optimizer, loss_fn, dev_loss_fn, metrics, params, model_dir,
                        restore_file=None, model_name="vgg"):
     """Train the model and evaluate every epoch.
 
@@ -139,7 +139,7 @@ def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optim
         train(student, teacher, optimizer, teacher_optimizer, loss_fn, train_dataloader, metrics, params, model_name)
 
         # Evaluate for one epoch on validation set
-        val_metrics = evaluate(student, loss_fn, val_dataloader, metrics, params)
+        val_metrics = evaluate(student, dev_loss_fn, val_dataloader, metrics, params)
         wandb.log(val_metrics)
 
         val_acc = val_metrics['accuracy dev']
@@ -210,6 +210,7 @@ if __name__ == '__main__':
 
     # fetch loss function and metrics
     loss_fn = net.distill_loss_fn
+    dev_loss_fn = net.loss_fn
     metrics = net.metrics
 
     wandb.init(
@@ -229,5 +230,5 @@ if __name__ == '__main__':
     )
     # Train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, teacher_optimizer, loss_fn, metrics, params, args.model_dir,
+    train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, teacher_optimizer, loss_fn, dev_loss_fn, metrics, params, args.model_dir,
                        args.restore_file, args.model)
