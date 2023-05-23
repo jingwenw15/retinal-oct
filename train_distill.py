@@ -118,7 +118,7 @@ def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optim
     """
     # load teacher model (resnet)
     resnet_restore_path = os.path.join(
-            'experiments/resnet', args.restore_file + '.pth.tar')
+            'experiments/resnet', 'best.pth.tar')
     logging.info("Restoring parameters from Resnet teacher model at {}".format(resnet_restore_path))
     utils.load_checkpoint(resnet_restore_path, teacher, teacher_optimizer)
 
