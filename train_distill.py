@@ -31,7 +31,7 @@ parser.add_argument('--restore_file', default='best',
                     training")  # 'best' or 'train'
 parser.add_argument('--model', default='vgg')
 
-def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
+def train(student, teacher, optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
 
     Args:
@@ -45,23 +45,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     """
 
     # set model to training mode
-    model.train()
-
-    wandb.init(
-    # set the wandb project where this run will be logged
-    project="cs230",
-    
-    # track hyperparameters and run metadata
-    config={
-    "learning_rate": params.learning_rate,
-    "epochs": params.num_epochs,
-    "batch_size": params.batch_size,
-    "dropout_rate": params.dropout_rate,
-    "architecture": model_name,
-    "image_size": '64x64',
-    "misc": "knowledge distillation"
-    }
-    )
+    student.train()
 
     # summary for current training loop and a running average object for loss
     summ = []
@@ -79,8 +63,9 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
                 train_batch), Variable(labels_batch)
 
             # compute model output and loss
-            output_batch = model(train_batch)
-            loss = loss_fn(output_batch, labels_batch)
+            output_batch = student(train_batch)
+            target_values = teacher(train_batch)
+            loss = loss_fn(output_batch, target_values)
 
             # clear previous gradients, compute gradients of all variables wrt loss
             optimizer.zero_grad()
@@ -116,7 +101,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     logging.info("- Train metrics: " + metrics_string)
 
 
-def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_fn, metrics, params, model_dir,
+def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optimizer, loss_fn, metrics, params, model_dir,
                        restore_file=None, model_name="vgg"):
     """Train the model and evaluate every epoch.
 
@@ -131,12 +116,17 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         model_dir: (string) directory containing config, weights and log
         restore_file: (string) optional- name of file to restore from (without its extension .pth.tar)
     """
-    # reload weights from restore_file if specified
+    # load teacher model (resnet)
+    resnet_restore_path = os.path.join(
+            'experiments/resnet', args.restore_file + '.pth.tar')
+    logging.info("Restoring parameters from Resnet teacher model at {}".format(resnet_restore_path))
+    utils.load_checkpoint(resnet_restore_path, teacher, optimizer)
+
     if restore_file is not None:
         restore_path = os.path.join(
             args.model_dir, args.restore_file + '.pth.tar')
         logging.info("Restoring parameters from {}".format(restore_path))
-        utils.load_checkpoint(restore_path, model, optimizer)
+        utils.load_checkpoint(restore_path, student, optimizer)
 
     best_val_acc = 0.0
 
@@ -145,10 +135,10 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
 
         # compute number of batches in one epoch (one full pass over the training set)
-        train(model, optimizer, loss_fn, train_dataloader, metrics, params, model_name)
+        train(student, teacher, optimizer, loss_fn, train_dataloader, metrics, params, model_name)
 
         # Evaluate for one epoch on validation set
-        val_metrics = evaluate(model, loss_fn, val_dataloader, metrics, params)
+        val_metrics = evaluate(student, loss_fn, val_dataloader, metrics, params)
         wandb.log(val_metrics)
 
         val_acc = val_metrics['accuracy dev']
@@ -156,7 +146,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
 
         # Save weights
         utils.save_checkpoint({'epoch': epoch + 1,
-                               'state_dict': model.state_dict(),
+                               'state_dict': student.state_dict(),
                                'optim_dict': optimizer.state_dict()},
                               is_best=is_best,
                               checkpoint=model_dir)
@@ -214,14 +204,30 @@ if __name__ == '__main__':
         net = vgg
     elif args.model == "resnet":
         net = resnet
-    model = net.Net(params).cuda() if params.cuda else net.Net(params)
-    optimizer = optim.Adam(model.parameters(), lr=params.learning_rate)
+    student = net.Net(params).cuda() if params.cuda else net.Net(params)
+    teacher = resnet.Net(params).cuda() if params.cuda else resnet.Net(params) 
+    optimizer = optim.Adam(student.parameters(), lr=params.learning_rate)
 
     # fetch loss function and metrics
     loss_fn = net.loss_fn
     metrics = net.metrics
 
+    wandb.init(
+    # set the wandb project where this run will be logged
+    project="cs230",
+    
+    # track hyperparameters and run metadata
+    config={
+    "learning_rate": params.learning_rate,
+    "epochs": params.num_epochs,
+    "batch_size": params.batch_size,
+    "dropout_rate": params.dropout_rate,
+    "architecture": args.model,
+    "image_size": '64x64',
+    "misc": "knowledge distillation"
+    }
+    )
     # Train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
+    train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
                        args.restore_file, args.model)
