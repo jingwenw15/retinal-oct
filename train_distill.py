@@ -31,7 +31,7 @@ parser.add_argument('--restore_file', default='best',
                     training")  # 'best' or 'train'
 parser.add_argument('--model', default='vgg')
 
-def train(student, teacher, optimizer, loss_fn, dataloader, metrics, params, model_name):
+def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
 
     Args:
@@ -101,7 +101,7 @@ def train(student, teacher, optimizer, loss_fn, dataloader, metrics, params, mod
     logging.info("- Train metrics: " + metrics_string)
 
 
-def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optimizer, loss_fn, metrics, params, model_dir,
+def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optimizer, teacher_optimizer, loss_fn, metrics, params, model_dir,
                        restore_file=None, model_name="vgg"):
     """Train the model and evaluate every epoch.
 
@@ -120,7 +120,7 @@ def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optim
     resnet_restore_path = os.path.join(
             'experiments/resnet', args.restore_file + '.pth.tar')
     logging.info("Restoring parameters from Resnet teacher model at {}".format(resnet_restore_path))
-    utils.load_checkpoint(resnet_restore_path, teacher, optimizer)
+    utils.load_checkpoint(resnet_restore_path, teacher, teacher_optimizer)
 
     if restore_file is not None:
         restore_path = os.path.join(
@@ -135,7 +135,7 @@ def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optim
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
 
         # compute number of batches in one epoch (one full pass over the training set)
-        train(student, teacher, optimizer, loss_fn, train_dataloader, metrics, params, model_name)
+        train(student, teacher, optimizer, teacher_optimizer, loss_fn, train_dataloader, metrics, params, model_name)
 
         # Evaluate for one epoch on validation set
         val_metrics = evaluate(student, loss_fn, val_dataloader, metrics, params)
@@ -175,9 +175,11 @@ if __name__ == '__main__':
     assert os.path.isfile(
         json_path), "No json configuration file found at {}".format(json_path)
     params = utils.Params(json_path)
+    teacher_params = utils.Params(os.path.join('experiments/resnet', 'params.json'))
 
     # use GPU if available
     params.cuda = torch.cuda.is_available()
+    teacher_params.cuda = torch.cuda.is_available()
 
     # Set the random seed for reproducible experiments
     torch.manual_seed(230)
@@ -205,8 +207,9 @@ if __name__ == '__main__':
     elif args.model == "resnet":
         net = resnet
     student = net.Net(params).cuda() if params.cuda else net.Net(params)
-    teacher = resnet.Net(params).cuda() if params.cuda else resnet.Net(params) 
+    teacher = resnet.Net(teacher_params).cuda() if teacher_params.cuda else resnet.Net(teacher_params) 
     optimizer = optim.Adam(student.parameters(), lr=params.learning_rate)
+    teacher_optimizer = optim.Adam(teacher.parameters(), lr=teacher_params.learning_rate)
 
     # fetch loss function and metrics
     loss_fn = net.loss_fn
@@ -229,5 +232,5 @@ if __name__ == '__main__':
     )
     # Train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
+    train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, teacher_optimizer, loss_fn, metrics, params, args.model_dir,
                        args.restore_file, args.model)
