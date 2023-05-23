@@ -13,6 +13,7 @@ from tqdm import tqdm
 import utils
 import model.resnet as resnet
 import model.vgg as vgg
+import model.net as net
 import model.data_loader as data_loader
 from evaluate import evaluate
 
@@ -29,7 +30,7 @@ parser.add_argument('--model_dir', default='experiments/base_model',
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
-parser.add_argument('--model', default='vgg')
+parser.add_argument('--model', default='net')
 
 def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
@@ -201,18 +202,14 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # Define the model and optimizer
-    net = None 
-    if args.model == "vgg": 
-        net = vgg
-    elif args.model == "resnet":
-        net = resnet
+
     student = net.Net(params).cuda() if params.cuda else net.Net(params)
     teacher = resnet.Net(teacher_params).cuda() if teacher_params.cuda else resnet.Net(teacher_params) 
     optimizer = optim.Adam(student.parameters(), lr=params.learning_rate)
     teacher_optimizer = optim.Adam(teacher.parameters(), lr=teacher_params.learning_rate)
 
     # fetch loss function and metrics
-    loss_fn = net.loss_fn
+    loss_fn = net.distill_loss_fn
     metrics = net.metrics
 
     wandb.init(

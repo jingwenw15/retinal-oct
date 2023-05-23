@@ -102,6 +102,11 @@ def loss_fn(outputs, labels):
     """
     return F.cross_entropy(outputs, labels, reduction='mean')
 
+def distill_loss_fn(outputs, labels, t=4): 
+    student_weights = F.softmax(outputs / t)
+    teacher_weights = F.softmax(labels / t)
+    return F.mse_loss(student_weights, teacher_weights, reduction='mean')
+
 
 def accuracy(outputs, labels):
     """
