@@ -19,7 +19,7 @@ from evaluate import evaluate
 
 import wandb
 
-# TODO: WORK IN PROGRESS!!!!! 
+# reference: https://josehoras.github.io/knowledge-distillation/
 
 
 parser = argparse.ArgumentParser()
