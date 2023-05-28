@@ -14,6 +14,7 @@ import utils
 import model.resnet as resnet
 import model.vgg as vgg
 import model.net as net
+import model.mobilenet as mobilenet
 import model.data_loader as data_loader
 from evaluate import evaluate
 
@@ -202,8 +203,11 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # Define the model and optimizer
-
-    student = net.Net(params).cuda() if params.cuda else net.Net(params)
+    student = None 
+    if args.model == 'net': 
+        student = net.Net(params).cuda() if params.cuda else net.Net(params)
+    elif args.model == 'mobilenet':
+        student = mobilenet.Net(params).cuda() if params.cuda else net.Net(params)
     teacher = resnet.Net(teacher_params).cuda() if teacher_params.cuda else resnet.Net(teacher_params) 
     optimizer = optim.Adam(student.parameters(), lr=params.learning_rate)
     teacher_optimizer = optim.Adam(teacher.parameters(), lr=teacher_params.learning_rate)
