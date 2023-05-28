@@ -108,7 +108,7 @@ def distill_loss_fn(outputs, labels, t=4):
     student_weights = F.softmax(outputs / t, dim=1)
     teacher_weights = F.softmax(labels / t, dim=1)
     return F.mse_loss(student_weights, teacher_weights, reduction='mean')
-
+# TODO: match outputs of any layer in general after both layers (after ReLU layer) take middle layers, proportionately 
 
 def accuracy(outputs, labels):
     """
@@ -131,7 +131,7 @@ def cnv_acc(outputs, labels):
 def dme_acc(outputs, labels): 
     outputs = np.argmax(outputs, axis=1) 
     labeled_dme = (labels == 1)
-    return np.sum(outputs[labeled_dme] == 1)/float(np.sum(labeled_dme))    
+    return np.sum(outputs[labeled_dme] == 1)/float(np.sum(labeled_dme)) 
 
 def drusen_acc(outputs, labels): 
     outputs = np.argmax(outputs, axis=1) 
