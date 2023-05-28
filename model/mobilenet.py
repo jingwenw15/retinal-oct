@@ -112,5 +112,3 @@ metrics = {
     'drusen': drusen_acc,
     'normal': normal_acc
 }
-
-t = Net({})
