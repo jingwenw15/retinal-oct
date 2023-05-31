@@ -193,7 +193,7 @@ def test_model(model, loss_fn, test_dataloader, metrics, params, model_name):
     "architecture": model_name,
     "image_size": '64x64',
     "misc": "test the model"
-    }
+    },
     )
     test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test')
     wandb.log(test_metrics)
