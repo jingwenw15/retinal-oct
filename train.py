@@ -30,6 +30,7 @@ parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
 parser.add_argument('--model', default='vgg')
+parser.add_argument('--no_train', action='store_true')
 parser.add_argument('--test', action='store_true')
 
 def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
@@ -236,8 +237,9 @@ if __name__ == '__main__':
     metrics = net.metrics
 
     # Train the model
-    logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
-                       args.restore_file, args.model)
+    if not args.no_train: 
+        logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
+        train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
+                        args.restore_file, args.model)
     if args.test: 
         test_model(model, loss_fn, test_dl, metrics, params)
