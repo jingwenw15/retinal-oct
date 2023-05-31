@@ -30,6 +30,7 @@ parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
 parser.add_argument('--model', default='vgg')
+parser.add_argument('--test', action='store_true')
 
 def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
@@ -176,6 +177,10 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
             model_dir, "metrics_val_last_weights.json")
         utils.save_dict_to_json(val_metrics, last_json_path)
 
+# TODO: WIP 
+def test_model(model, loss_fn, test_dataloader, metrics, params):
+    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test')
+    wandb.log(test_metrics)
 
 if __name__ == '__main__':
 
@@ -206,6 +211,11 @@ if __name__ == '__main__':
     train_dl = dataloaders['train']
     val_dl = dataloaders['val']
 
+    test_dl = None 
+    if args.test:
+        test_dl = data_loader.fetch_dataloader(['test'], args.data_dir, params)['test']
+        logging.info("Loaded test dataset.")
+
     logging.info("- done.")
 
     # Define the model and optimizer
@@ -229,3 +239,5 @@ if __name__ == '__main__':
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
     train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
                        args.restore_file, args.model)
+    if args.test: 
+        test_model(model, loss_fn, test_dl, metrics, params)

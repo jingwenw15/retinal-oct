@@ -1,4 +1,4 @@
-"""Train the model KNOWLEDGE DISTILLATION - TODO: WIP!! """
+"""Train the model KNOWLEDGE DISTILLATION"""
 
 import argparse
 import logging
@@ -208,6 +208,7 @@ if __name__ == '__main__':
         student = net.Net(params).cuda() if params.cuda else net.Net(params)
     elif args.model == 'mobilenet':
         student = mobilenet.Net(params).cuda() if params.cuda else net.Net(params)
+    
     teacher = resnet.Net(teacher_params).cuda() if teacher_params.cuda else resnet.Net(teacher_params) 
     optimizer = optim.Adam(student.parameters(), lr=params.learning_rate)
     teacher_optimizer = optim.Adam(teacher.parameters(), lr=teacher_params.learning_rate)

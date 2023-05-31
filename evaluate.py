@@ -20,7 +20,7 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
                      containing weights to load")
 
 
-def evaluate(model, loss_fn, dataloader, metrics, params):
+def evaluate(model, loss_fn, dataloader, metrics, params, split='dev'):
     """Evaluate the model on `num_steps` batches.
 
     Args:
@@ -63,7 +63,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params):
         summ.append(summary_batch)
 
     # compute mean of all metrics in summary
-    metrics_mean = {metric + ' dev': np.mean([x[metric]
+    metrics_mean = {metric + ' ' + split: np.mean([x[metric]
                                      for x in summ]) for metric in summ[0]}
     metrics_string = " ; ".join("{}: {:05.3f}".format(k, v)
                                 for k, v in metrics_mean.items())
