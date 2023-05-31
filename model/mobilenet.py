@@ -22,9 +22,9 @@ class Net(nn.Module):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("Current device:", device)
 
-        self.mobilenet = models.mobilenet_v2(weights='IMAGENET1K_V1')
+        # self.mobilenet = models.mobilenet_v2(weights='IMAGENET1K_V1')
+        self.mobilenet = models.mobilenet_v2() # DONT USE PRETRAINED WEIGHTS 
         in_features = self.mobilenet.classifier[1].in_features
-
 
         # replace FC layer with our layer 
         self.mobilenet.classifier[1] = nn.Linear(in_features=in_features, out_features=4, device=device)
