@@ -179,7 +179,13 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         utils.save_dict_to_json(val_metrics, last_json_path)
 
 # TODO: WIP 
-def test_model(model, loss_fn, test_dataloader, metrics, params, model_name):
+def test_model(model, loss_fn, test_dataloader, metrics, params, model_name, restore_file=None):
+    # reload weights from restore_file if specified
+    if restore_file is not None:
+        restore_path = os.path.join(
+            args.model_dir, args.restore_file + '.pth.tar')
+        logging.info("Restoring parameters from {}".format(restore_path))
+        utils.load_checkpoint(restore_path, model, optimizer)
     wandb.init(
     # set the wandb project where this run will be logged
     project="cs230",
@@ -257,4 +263,4 @@ if __name__ == '__main__':
         train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
                         args.restore_file, args.model)
     if args.test: 
-        test_model(model, loss_fn, test_dl, metrics, params, args.model)
+        test_model(model, loss_fn, test_dl, metrics, params, args.model, args.restore_file)
