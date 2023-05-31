@@ -179,7 +179,22 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         utils.save_dict_to_json(val_metrics, last_json_path)
 
 # TODO: WIP 
-def test_model(model, loss_fn, test_dataloader, metrics, params):
+def test_model(model, loss_fn, test_dataloader, metrics, params, model_name):
+    wandb.init(
+    # set the wandb project where this run will be logged
+    project="cs230",
+    
+    # track hyperparameters and run metadata
+    config={
+    "learning_rate": params.learning_rate,
+    "epochs": params.num_epochs,
+    "batch_size": params.batch_size,
+    "dropout_rate": params.dropout_rate,
+    "architecture": model_name,
+    "image_size": '64x64',
+    "misc": "test the model"
+    }
+    )
     test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test')
     wandb.log(test_metrics)
 
@@ -242,4 +257,4 @@ if __name__ == '__main__':
         train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
                         args.restore_file, args.model)
     if args.test: 
-        test_model(model, loss_fn, test_dl, metrics, params)
+        test_model(model, loss_fn, test_dl, metrics, params, args.model)
