@@ -268,4 +268,4 @@ if __name__ == '__main__':
                         args.restore_file, args.student)
     
     if args.test: 
-        test_model(student, loss_fn, test_dl, metrics, params, args.restore_file)
+        test_model(student, dev_loss_fn, test_dl, metrics, params, args.restore_file)
