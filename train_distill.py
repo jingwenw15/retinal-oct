@@ -33,6 +33,7 @@ parser.add_argument('--restore_file', default=None,
                     training")  # 'best' or 'train'
 parser.add_argument('--student', default='net')
 parser.add_argument('--teacher', default='resnet')
+parser.add_argument('--no_train', action='store_true')
 parser.add_argument('--test', action='store_true')
 
 
@@ -261,9 +262,10 @@ if __name__ == '__main__':
     }
     )
     # Train the model
-    logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, teacher_optimizer, loss_fn, dev_loss_fn, metrics, params, args.model_dir,
-                       args.restore_file, args.student)
+    if not args.no_train:
+        logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
+        train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, teacher_optimizer, loss_fn, dev_loss_fn, metrics, params, args.model_dir,
+                        args.restore_file, args.student)
     
     if args.test: 
         test_model(student, loss_fn, test_dl, metrics, params, args.restore_file)
