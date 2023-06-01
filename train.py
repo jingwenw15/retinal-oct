@@ -178,7 +178,9 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
             model_dir, "metrics_val_last_weights.json")
         utils.save_dict_to_json(val_metrics, last_json_path)
 
-# TODO: WIP 
+'''
+Evaluate the model on the test set. 
+'''
 def test_model(model, loss_fn, test_dataloader, metrics, params, model_name, restore_file=None):
     # reload weights from restore_file if specified
     if restore_file is not None:

@@ -31,7 +31,8 @@ parser.add_argument('--model_dir', default='experiments/base_model',
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
-parser.add_argument('--model', default='net')
+parser.add_argument('--student', default='net')
+parser.add_argument('--teacher', default='resnet')
 parser.add_argument('--test', action='store_true')
 
 
@@ -120,16 +121,16 @@ def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optim
         model_dir: (string) directory containing config, weights and log
         restore_file: (string) optional- name of file to restore from (without its extension .pth.tar)
     """
-    # load teacher model (resnet)
+    # load teacher model
     resnet_restore_path = os.path.join(
-            'experiments/resnet', 'best.pth.tar')
-    logging.info("Restoring parameters from Resnet teacher model at {}".format(resnet_restore_path))
+            'experiments/' + args.teacher, 'best.pth.tar')
+    logging.info("Restoring parameters from {} teacher model at {}".format(args.teacher, resnet_restore_path))
     utils.load_checkpoint(resnet_restore_path, teacher, teacher_optimizer)
 
     if restore_file is not None:
         restore_path = os.path.join(
             args.model_dir, args.restore_file + '.pth.tar')
-        logging.info("Restoring parameters from {}".format(restore_path))
+        logging.info("Restoring parameters from student model at {}".format(restore_path))
         utils.load_checkpoint(restore_path, student, optimizer)
 
     best_val_acc = 0.0
@@ -170,8 +171,17 @@ def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optim
             model_dir, "metrics_val_last_weights.json")
         utils.save_dict_to_json(val_metrics, last_json_path)
 
-# TODO: WIP 
-def test_model(model, loss_fn, test_dataloader, metrics, params):
+'''
+Evaluate the model on the test set. 
+''' 
+def test_model(model, loss_fn, test_dataloader, metrics, params, restore_file):
+    # reload weights from restore_file if specified
+    if restore_file is not None:
+        restore_path = os.path.join(
+            args.model_dir, args.restore_file + '.pth.tar')
+        logging.info("Restoring parameters from {}".format(restore_path))
+        utils.load_checkpoint(restore_path, model, optimizer)
+
     test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test')
     wandb.log(test_metrics)
 
@@ -215,12 +225,17 @@ if __name__ == '__main__':
 
     # Define the model and optimizer
     student = None 
-    if args.model == 'net': 
+    if args.student == 'net': 
         student = net.Net(params).cuda() if params.cuda else net.Net(params)
-    elif args.model == 'mobilenet':
+    elif args.student == 'mobilenet':
         student = mobilenet.Net(params).cuda() if params.cuda else net.Net(params)
     
-    teacher = resnet.Net(teacher_params).cuda() if teacher_params.cuda else resnet.Net(teacher_params) 
+    teacher = None 
+    if args.teacher == 'resnet': 
+        teacher = resnet.Net(teacher_params).cuda() if teacher_params.cuda else resnet.Net(teacher_params) 
+    elif args.teacher == 'vgg': 
+        teacher = vgg.Net(teacher_params).cuda() if teacher_params.cuda else vgg.Net(teacher_params) 
+
     optimizer = optim.Adam(student.parameters(), lr=params.learning_rate)
     teacher_optimizer = optim.Adam(teacher.parameters(), lr=teacher_params.learning_rate)
 
@@ -239,15 +254,16 @@ if __name__ == '__main__':
     "epochs": params.num_epochs,
     "batch_size": params.batch_size,
     "dropout_rate": params.dropout_rate,
-    "architecture": args.model,
+    "student": args.student,
     "image_size": '64x64',
-    "misc": "knowledge distillation"
+    "misc": "knowledge distillation",
+    "teacher": args.teacher
     }
     )
     # Train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
     train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, teacher_optimizer, loss_fn, dev_loss_fn, metrics, params, args.model_dir,
-                       args.restore_file, args.model)
+                       args.restore_file, args.student)
     
     if args.test: 
-        test_model(student, loss_fn, test_dl, metrics, params)
+        test_model(student, loss_fn, test_dl, metrics, params, args.restore_file)
