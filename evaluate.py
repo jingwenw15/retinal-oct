@@ -20,7 +20,7 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
                      containing weights to load")
 
 
-def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=False):
+def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=False, model_name=None):
     """Evaluate the model on `num_steps` batches.
 
     Args:
@@ -40,7 +40,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=Fal
 
     # open file descriptor
     if write: 
-        fd = open('predictions/vgg_' + split + '.csv', 'w+')
+        fd = open('predictions/' + model_name + "_" + split + '.csv', 'w+')
             
     # compute metrics over the dataset
     for data_batch, labels_batch, images_name in dataloader:
@@ -69,7 +69,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=Fal
         summ.append(summary_batch)
 
     # compute mean of all metrics in summary
-    metrics_mean = {metric + ' ' + split: np.mean([x[metric]
+    metrics_mean = {metric + ' ' + split + (' best' if write else ''): np.mean([x[metric]
                                      for x in summ]) for metric in summ[0]}
     metrics_string = " ; ".join("{}: {:05.3f}".format(k, v)
                                 for k, v in metrics_mean.items())

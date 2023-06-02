@@ -108,17 +108,21 @@ def distill_loss_fn(outputs, labels, t=4):
     return F.mse_loss(student_weights, teacher_weights, reduction='mean')
 # TODO: match outputs of any layer in general after both layers (after ReLU layer) take middle layers, proportionately 
 
-def accuracy(outputs, labels):
+def accuracy(outputs, labels, split=None, images_name=None, fd=None):
     """
     Compute the accuracy, given the outputs and labels for all images.
 
     Args:
-        outputs: (np.ndarray) dimension batch_size x 6 - log softmax output of the model
-        labels: (np.ndarray) dimension batch_size, where each element is a value in [0, 1, 2, 3, 4, 5]
+        outputs: (np.ndarray) dimension batch_size x 4 - log softmax output of the model
+        labels: (np.ndarray) dimension batch_size, where each element is a value in [0, 1, 2, 3]
 
     Returns: (float) accuracy in [0,1]
     """
     outputs = np.argmax(outputs, axis=1)
+    if split: 
+        for o, l, filename in zip(outputs, labels, images_name):
+            fd.write(filename + ',' + str(o) + ',' + str(l) + '\n')
+
     return np.sum(outputs==labels)/float(labels.size)
 
 def cnv_acc(outputs, labels): 
