@@ -83,7 +83,7 @@ def accuracy(outputs, labels, split=None, image_name=None):
     if split: 
         for o, l in zip(outputs, labels):
             with open('predictions/vgg_' + split + '.csv', 'w+') as f:
-                f.write(image_name + ',' + str(o) + ',' + str(l))
+                f.write(image_name + ',' + str(o) + ',' + str(l) + '\n')
 
     return np.sum(outputs==labels)/float(labels.size)
 
