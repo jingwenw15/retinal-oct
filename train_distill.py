@@ -226,10 +226,13 @@ if __name__ == '__main__':
 
     # Define the model and optimizer
     student = None 
+    student_net = None 
     if args.student == 'net': 
         student = net.Net(params).cuda() if params.cuda else net.Net(params)
+        student_net = net
     elif args.student == 'mobilenet':
-        student = mobilenet.Net(params).cuda() if params.cuda else net.Net(params)
+        student = mobilenet.Net(params, False).cuda() if params.cuda else mobilenet.Net(params, False)
+        student_net = mobilenet
     
     teacher = None 
     if args.teacher == 'resnet': 
@@ -241,9 +244,9 @@ if __name__ == '__main__':
     teacher_optimizer = optim.Adam(teacher.parameters(), lr=teacher_params.learning_rate)
 
     # fetch loss function and metrics
-    loss_fn = net.distill_loss_fn
-    dev_loss_fn = net.loss_fn
-    metrics = net.metrics
+    loss_fn = student_net.distill_loss_fn 
+    dev_loss_fn = student_net.loss_fn
+    metrics = student_net.metrics
 
     wandb.init(
     # set the wandb project where this run will be logged

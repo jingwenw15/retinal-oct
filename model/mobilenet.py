@@ -13,7 +13,7 @@ class Net(nn.Module):
     http://pytorch.org/docs/master/nn.html
     """
 
-    def __init__(self, params):
+    def __init__(self, params, use_pretrained=True):
         """
         Args:
             params: (Params) contains num_channels
@@ -22,8 +22,10 @@ class Net(nn.Module):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("Current device:", device)
 
-        # self.mobilenet = models.mobilenet_v2(weights='IMAGENET1K_V1')
-        self.mobilenet = models.mobilenet_v2() # DONT USE PRETRAINED WEIGHTS 
+        if use_pretrained: 
+            self.mobilenet = models.mobilenet_v2(weights='IMAGENET1K_V1')
+        else: 
+            self.mobilenet = models.mobilenet_v2()
         in_features = self.mobilenet.classifier[1].in_features
 
         # replace FC layer with our layer 
