@@ -33,7 +33,6 @@ class Net(nn.Module):
         """
         super(Net, self).__init__()
         self.num_channels = params.num_channels
-        # self.num_channels = 32 # TODO: comment this out and restore original
         
         # each of the convolution layers below have the arguments (input_channels, output_channels, filter_size,
         # stride, padding). We also include batch normalisation layers that help stabilise training.
@@ -50,7 +49,6 @@ class Net(nn.Module):
         self.fcbn1 = nn.BatchNorm1d(self.num_channels*4)
         self.fc2 = nn.Linear(self.num_channels*4, 4)       
         self.dropout_rate = params.dropout_rate
-        # self.dropout_rate = 0.5 # TODO: replace this 
 
     def forward(self, s):
         """
@@ -151,6 +149,3 @@ metrics = {
     'drusen': drusen_acc,
     'normal': normal_acc
 }
-
-# t = Net({"num_channels": 32})
-# print(t)

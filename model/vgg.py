@@ -10,7 +10,7 @@ from torchvision import datasets, models, transforms
 class Net(nn.Module):
     """
     Define the Net for the VGG16 model that we will perform transfer learning on. 
-    http://pytorch.org/docs/master/nn.html
+    https://pytorch.org/vision/main/models/generated/torchvision.models.vgg16.html#torchvision.models.vgg16
     """
 
     def __init__(self, params):

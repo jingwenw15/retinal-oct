@@ -9,9 +9,8 @@ from torchvision import datasets, models, transforms
 
 class Net(nn.Module):
     """
-    Define a Net which will contain the ResNet18 model that we will perform transfer learning on.
-    http://pytorch.org/docs/master/nn.html
-    """
+    Define a Net which will contain the Mobilenet model that we will perform learning on.
+    https://pytorch.org/vision/main/models/generated/torchvision.models.mobilenet_v2.html#torchvision.models.mobilenet_v2    """
 
     def __init__(self, params, use_pretrained=True):
         """
@@ -30,7 +29,6 @@ class Net(nn.Module):
 
         # replace FC layer with our layer 
         self.mobilenet.classifier[1] = nn.Linear(in_features=in_features, out_features=4, device=device)
-        print(self.mobilenet)
         self.mobilenet = self.mobilenet.to(device)
 
         
