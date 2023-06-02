@@ -182,7 +182,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
 '''
 Evaluate the model on the dev and test set. 
 '''
-def dev_test_model(model, loss_fn, test_dataloader, metrics, params, model_name):
+def dev_test_model(model, loss_fn, dev_dataloader, test_dataloader, metrics, params, model_name):
     # reload weights from restore_file if specified
     restore_path = os.path.join(
         args.model_dir, 'best.pth.tar')
@@ -203,7 +203,7 @@ def dev_test_model(model, loss_fn, test_dataloader, metrics, params, model_name)
     "misc": "dev/test the model"
     },
     )
-    dev_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='dev', write=True)
+    dev_metrics = evaluate(model, loss_fn, dev_dataloader, metrics, params, split='dev', write=True)
     wandb.log(dev_metrics)
     test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test', write=True)
     wandb.log(test_metrics)
@@ -269,6 +269,6 @@ if __name__ == '__main__':
         train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
                         args.restore_file, args.model)
     if args.evaluate: 
-        dev_test_model(model, loss_fn, test_dl, metrics, params, args.model)
+        dev_test_model(model, loss_fn, val_dl, test_dl, metrics, params, args.model)
 
 
