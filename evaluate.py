@@ -58,8 +58,9 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=Fal
 
         # compute all metrics on this batch
         summary_batch = {metric: metrics[metric](output_batch, labels_batch, split, images_name)
-                         for metric in metrics} if write else {metric: metrics[metric](output_batch, labels_batch)
-                         for metric in metrics}
+                        if metric == 'accuracy' else metrics[metric](output_batch, labels_batch) for metric in metrics } \
+                        if write else {metric: metrics[metric](output_batch, labels_batch)
+                                        for metric in metrics}
         summary_batch['loss'] = loss.item()
         summ.append(summary_batch)
 
