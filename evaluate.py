@@ -20,7 +20,7 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
                      containing weights to load")
 
 
-def evaluate(model, loss_fn, dataloader, metrics, params, split='dev'):
+def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=False):
     """Evaluate the model on `num_steps` batches.
 
     Args:
@@ -58,6 +58,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev'):
 
         # compute all metrics on this batch
         summary_batch = {metric: metrics[metric](output_batch, labels_batch, split, image_name)
+                         for metric in metrics} if write else {metric: metrics[metric](output_batch, labels_batch)
                          for metric in metrics}
         summary_batch['loss'] = loss.item()
         summ.append(summary_batch)
@@ -74,6 +75,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev'):
 if __name__ == '__main__':
     """
         Evaluate the model on the test set.
+        TODO: delete this bc we already wrote our own version
     """
     # Load the parameters
     args = parser.parse_args()

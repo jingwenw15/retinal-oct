@@ -32,7 +32,7 @@ parser.add_argument('--restore_file', default=None,
                     training")  # 'best' or 'train'
 parser.add_argument('--model', default='vgg')
 parser.add_argument('--no_train', action='store_true')
-parser.add_argument('--test', action='store_true')
+parser.add_argument('--evaluate', action='store_true')
 
 def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
@@ -180,15 +180,14 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer, loss_
         utils.save_dict_to_json(val_metrics, last_json_path)
 
 '''
-Evaluate the model on the test set. 
+Evaluate the model on the dev and test set. 
 '''
-def test_model(model, loss_fn, test_dataloader, metrics, params, model_name, restore_file=None):
+def dev_test_model(model, loss_fn, test_dataloader, metrics, params, model_name):
     # reload weights from restore_file if specified
-    if restore_file is not None:
-        restore_path = os.path.join(
-            args.model_dir, args.restore_file + '.pth.tar')
-        logging.info("Restoring parameters from {}".format(restore_path))
-        utils.load_checkpoint(restore_path, model, optimizer)
+    restore_path = os.path.join(
+        args.model_dir, 'best.pth.tar')
+    logging.info("Restoring parameters from {}".format(restore_path))
+    utils.load_checkpoint(restore_path, model, optimizer)
     wandb.init(
     # set the wandb project where this run will be logged
     project="cs230",
@@ -201,10 +200,12 @@ def test_model(model, loss_fn, test_dataloader, metrics, params, model_name, res
     "dropout_rate": params.dropout_rate,
     "architecture": model_name,
     "image_size": '64x64',
-    "misc": "test the model"
+    "misc": "dev/test the model"
     },
     )
-    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test')
+    dev_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='dev', write=True)
+    wandb.log(dev_metrics)
+    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test', write=True)
     wandb.log(test_metrics)
 
 if __name__ == '__main__':
@@ -267,5 +268,7 @@ if __name__ == '__main__':
         logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
         train_and_evaluate(model, train_dl, val_dl, optimizer, loss_fn, metrics, params, args.model_dir,
                         args.restore_file, args.model)
-    if args.test: 
-        test_model(model, loss_fn, test_dl, metrics, params, args.model, args.restore_file)
+    if args.evaluate: 
+        dev_test_model(model, loss_fn, test_dl, metrics, params, args.model)
+
+
