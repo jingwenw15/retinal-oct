@@ -238,7 +238,7 @@ if __name__ == '__main__':
     val_dl = dataloaders['val']
 
     test_dl = None 
-    if args.test:
+    if args.evaluate:
         test_dl = data_loader.fetch_dataloader(['test'], args.data_dir, params)['test']
         logging.info("Loaded test dataset.")
 
