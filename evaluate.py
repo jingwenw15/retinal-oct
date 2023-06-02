@@ -39,7 +39,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev'):
     summ = []
 
     # compute metrics over the dataset
-    for data_batch, labels_batch in dataloader:
+    for data_batch, labels_batch, image_name in dataloader:
 
         # move to GPU if available
         if params.cuda:
@@ -57,7 +57,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev'):
         labels_batch = labels_batch.data.cpu().numpy()
 
         # compute all metrics on this batch
-        summary_batch = {metric: metrics[metric](output_batch, labels_batch)
+        summary_batch = {metric: metrics[metric](output_batch, labels_batch, split, image_name)
                          for metric in metrics}
         summary_batch['loss'] = loss.item()
         summ.append(summary_batch)

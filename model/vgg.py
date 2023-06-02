@@ -69,7 +69,7 @@ def loss_fn(outputs, labels):
     return F.cross_entropy(outputs, labels, reduction='mean')
 
 
-def accuracy(outputs, labels):
+def accuracy(outputs, labels, split=None, image_name=None):
     """
     Compute the accuracy, given the outputs and labels for all images.
 
@@ -80,6 +80,11 @@ def accuracy(outputs, labels):
     Returns: (float) accuracy in [0,1]
     """
     outputs = np.argmax(outputs, axis=1)
+    if split: 
+        for o, l in zip(outputs, labels):
+            with open('predictions/vgg_' + split + '.csv', 'w+') as f:
+                f.write(image_name + ',' + str(o) + ',' + str(l))
+
     return np.sum(outputs==labels)/float(labels.size)
 
 def cnv_acc(outputs, labels): 

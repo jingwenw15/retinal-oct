@@ -12,7 +12,7 @@ train_transformer = transforms.Compose([
     transforms.Resize((64, 64)),  # resize the image to 64x64 (remove if images are already 64x64)
     transforms.ToTensor()])  # transform it into a torch tensor
 
-# loader for evaluation, no horizontal flip
+# loader for evaluation
 eval_transformer = transforms.Compose([
     transforms.Resize((64, 64)),  # resize the image to 64x64 (remove if images are already 64x64)
     transforms.ToTensor()])  # transform it into a torch tensor
@@ -77,7 +77,7 @@ class OCTDataset(Dataset):
         # image = Image.open(self.filenames[idx]).convert("RGB")  # PIL image
         image = self.transform(image)
         # return image, self.labels[idx]
-        return image, label
+        return image, label, image_name
 
 
 def fetch_dataloader(types, data_dir, params):

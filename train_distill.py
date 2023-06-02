@@ -59,7 +59,7 @@ def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, m
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
-        for i, (train_batch, labels_batch) in enumerate(dataloader):
+        for i, (train_batch, labels_batch, _) in enumerate(dataloader):
             # move to GPU if available
             if params.cuda:
                 train_batch, labels_batch = train_batch.cuda(
