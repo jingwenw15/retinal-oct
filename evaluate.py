@@ -38,6 +38,10 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=Fal
     # summary for current eval loop
     summ = []
 
+    # open file descriptor
+    if write: 
+        fd = open('predictions/vgg_' + split + '.csv', 'w+')
+            
     # compute metrics over the dataset
     for data_batch, labels_batch, images_name in dataloader:
 
@@ -57,7 +61,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=Fal
         labels_batch = labels_batch.data.cpu().numpy()
 
         # compute all metrics on this batch
-        summary_batch = {metric: metrics[metric](output_batch, labels_batch, split, images_name)
+        summary_batch = {metric: metrics[metric](output_batch, labels_batch, split, images_name, fd)
                         if metric == 'accuracy' else metrics[metric](output_batch, labels_batch) for metric in metrics } \
                         if write else {metric: metrics[metric](output_batch, labels_batch)
                                         for metric in metrics}
