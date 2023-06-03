@@ -34,7 +34,7 @@ parser.add_argument('--restore_file', default=None,
 parser.add_argument('--student', default='net')
 parser.add_argument('--teacher', default='resnet')
 parser.add_argument('--no_train', action='store_true')
-parser.add_argument('--test', action='store_true')
+parser.add_argument('--evaluate', action='store_true')
 
 
 def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, metrics, params, model_name):
@@ -52,6 +52,23 @@ def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, m
 
     # set model to training mode
     student.train()
+
+    wandb.init(
+    # set the wandb project where this run will be logged
+    project="cs230",
+    
+    # track hyperparameters and run metadata
+    config={
+    "learning_rate": params.learning_rate,
+    "epochs": params.num_epochs,
+    "batch_size": params.batch_size,
+    "dropout_rate": params.dropout_rate,
+    "student": args.student,
+    "image_size": '64x64',
+    "misc": "knowledge distillation",
+    "teacher": args.teacher
+    }
+    )
 
     # summary for current training loop and a running average object for loss
     summ = []
@@ -175,15 +192,31 @@ def train_and_evaluate(student, teacher, train_dataloader, val_dataloader, optim
 '''
 Evaluate the model on the test set. 
 ''' 
-def test_model(model, loss_fn, test_dataloader, metrics, params, restore_file):
+def dev_test_model(model, loss_fn, dev_dataloader, test_dataloader, metrics, params, model_name):
     # reload weights from restore_file if specified
-    if restore_file is not None:
-        restore_path = os.path.join(
-            args.model_dir, args.restore_file + '.pth.tar')
-        logging.info("Restoring parameters from {}".format(restore_path))
-        utils.load_checkpoint(restore_path, model, optimizer)
+    restore_path = os.path.join(
+        args.model_dir, 'best.pth.tar')
+    logging.info("Restoring parameters from {}".format(restore_path))
+    utils.load_checkpoint(restore_path, model, optimizer)
+    wandb.init(
+    # set the wandb project where this run will be logged
+    project="cs230",
+    
+    # track hyperparameters and run metadata
+    config={
+    "learning_rate": params.learning_rate,
+    "epochs": params.num_epochs,
+    "batch_size": params.batch_size,
+    "dropout_rate": params.dropout_rate,
+    "architecture": model_name,
+    "image_size": '64x64',
+    "misc": "dev/test the model, knowledge distillation"
+    },
+    )
 
-    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test')
+    dev_metrics = evaluate(model, loss_fn, dev_dataloader, metrics, params, split='dev', write=True, model_name=model_name)
+    wandb.log(dev_metrics)
+    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test', write=True, model_name=model_name)
     wandb.log(test_metrics)
 
 if __name__ == '__main__':
@@ -248,27 +281,11 @@ if __name__ == '__main__':
     dev_loss_fn = student_net.loss_fn
     metrics = student_net.metrics
 
-    wandb.init(
-    # set the wandb project where this run will be logged
-    project="cs230",
-    
-    # track hyperparameters and run metadata
-    config={
-    "learning_rate": params.learning_rate,
-    "epochs": params.num_epochs,
-    "batch_size": params.batch_size,
-    "dropout_rate": params.dropout_rate,
-    "student": args.student,
-    "image_size": '64x64',
-    "misc": "knowledge distillation",
-    "teacher": args.teacher
-    }
-    )
     # Train the model
     if not args.no_train:
         logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
         train_and_evaluate(student, teacher, train_dl, val_dl, optimizer, teacher_optimizer, loss_fn, dev_loss_fn, metrics, params, args.model_dir,
                         args.restore_file, args.student)
     
-    if args.test: 
-        test_model(student, dev_loss_fn, test_dl, metrics, params, args.restore_file)
+    if args.evaluate: 
+        dev_test_model(student, dev_loss_fn, val_dl, test_dl, metrics, params, args.student + '_knowledge')
