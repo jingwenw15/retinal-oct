@@ -26,7 +26,7 @@ class Net(nn.Module):
         in_features = self.resnet.fc.in_features
         
         # freeze layers 
-        if 'freeze' in params.dict: 
+        if 'freeze' in params: 
             if params.freeze == "all": 
                 for param in self.resnet.parameters():
                     param.requires_grad = False 
