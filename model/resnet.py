@@ -26,13 +26,14 @@ class Net(nn.Module):
         in_features = self.resnet.fc.in_features
         
         # freeze layers 
-        if params.freeze == "all": 
-            for param in self.resnet.parameters():
-                param.requires_grad = False 
-        elif params.freeze == "some": 
-            for name, param in self.resnet.named_parameters():
-                if "layer4" not in name and "fc" not in name: 
-                    param.requires_grad = False
+        if params.contains('freeze'):
+            if params.freeze == "all": 
+                for param in self.resnet.parameters():
+                    param.requires_grad = False 
+            elif params.freeze == "some": 
+                for name, param in self.resnet.named_parameters():
+                    if "layer4" not in name and "fc" not in name: 
+                        param.requires_grad = False
         
         # replace FC layer with our layer 
         self.resnet.fc = nn.Linear(in_features=in_features, out_features=4, device=device)

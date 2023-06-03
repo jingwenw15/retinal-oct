@@ -31,6 +31,9 @@ class Params():
             params = json.load(f)
             self.__dict__.update(params)
 
+    def contains(self, param):
+        return param in self.__dict__
+
     @property
     def dict(self):
         """Gives dict-like access to Params instance by `params.dict['learning_rate']"""
