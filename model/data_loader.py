@@ -17,6 +17,11 @@ eval_transformer = transforms.Compose([
     transforms.Resize((64, 64)),  # resize the image to 64x64 (remove if images are already 64x64)
     transforms.ToTensor()])  # transform it into a torch tensor
 
+augmentation_transformer = transforms.Compose([
+    transforms.Resize((64, 64)),  # resize the image to 64x64 (remove if images are already 64x64)
+    transforms.RandomRotation(25),
+    transforms.ToTensor() 
+])
 
 class OCTDataset(Dataset):
     """
@@ -44,7 +49,6 @@ class OCTDataset(Dataset):
 
     def __len__(self):
         # return size of dataset
-        # return len(self.filenames)
         return len(self.cnv_filenames) * 4
 
     def __getitem__(self, idx):
@@ -99,7 +103,7 @@ def fetch_dataloader(types, data_dir, params):
             path = os.path.join(data_dir, "{}".format(split))
 
             if split == 'train':
-                dl = DataLoader(OCTDataset(path, train_transformer), batch_size=params.batch_size, shuffle=True,
+                dl = DataLoader(OCTDataset(path, augmentation_transformer), batch_size=params.batch_size, shuffle=True,
                                         num_workers=params.num_workers,
                                         pin_memory=params.cuda)
             else:
