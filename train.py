@@ -206,9 +206,9 @@ def dev_test_model(model, loss_fn, dev_dataloader, test_dataloader, metrics, par
     "misc": "dev/test the model"
     },
     )
-    dev_metrics = evaluate(model, loss_fn, dev_dataloader, metrics, params, split='dev', write=True, model_name=model_name)
+    dev_metrics = evaluate(model, loss_fn, dev_dataloader, metrics, params, split='dev', write=True, model_name=model_name, run_name=args.wandb_name)
     wandb.log(dev_metrics)
-    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test', write=True, model_name=model_name)
+    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test', write=True, model_name=model_name, run_name=args.wandb_name)
     wandb.log(test_metrics)
 
 if __name__ == '__main__':

@@ -17,4 +17,4 @@ def analyze(filename):
     print(correct / total)
     print(cm)
 
-analyze('predictions/mobilenet_knowledge_dev.csv')
+analyze('predictions/vgg_dev.csv')

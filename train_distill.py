@@ -35,6 +35,7 @@ parser.add_argument('--student', default='net')
 parser.add_argument('--teacher', default='resnet')
 parser.add_argument('--no_train', action='store_true')
 parser.add_argument('--evaluate', action='store_true')
+parser.add_argument('--wandb_name', default=None)
 
 
 def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, metrics, params, model_name):
@@ -214,9 +215,9 @@ def dev_test_model(model, loss_fn, dev_dataloader, test_dataloader, metrics, par
     },
     )
 
-    dev_metrics = evaluate(model, loss_fn, dev_dataloader, metrics, params, split='dev', write=True, model_name=model_name)
+    dev_metrics = evaluate(model, loss_fn, dev_dataloader, metrics, params, split='dev', write=True, model_name=model_name, run_name=args.wandb_name)
     wandb.log(dev_metrics)
-    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test', write=True, model_name=model_name)
+    test_metrics = evaluate(model, loss_fn, test_dataloader, metrics, params, split='test', write=True, model_name=model_name, run_name=args.wandb_name)
     wandb.log(test_metrics)
 
 if __name__ == '__main__':

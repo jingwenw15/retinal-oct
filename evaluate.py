@@ -20,7 +20,7 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
                      containing weights to load")
 
 
-def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=False, model_name=None):
+def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=False, model_name=None, run_name=None):
     """Evaluate the model on `num_steps` batches.
 
     Args:
@@ -40,7 +40,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=Fal
 
     # open file descriptor
     if write: 
-        fd = open('predictions/' + model_name + "_" + split + '.csv', 'w+')
+        fd = open('predictions/' + model_name + "_" + split + "_" + run_name + '.csv', 'w+')
             
     # compute metrics over the dataset
     for data_batch, labels_batch, images_name in dataloader:
