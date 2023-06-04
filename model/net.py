@@ -101,7 +101,8 @@ def ce_loss(outputs, labels):
     return F.cross_entropy(outputs, labels, reduction='mean')
 
 def mse_loss(outputs, labels): 
-    return F.mse_loss(outputs, labels, reduction='mean')
+    outputs_preds = np.argmax(outputs, axis=1) 
+    return F.mse_loss(outputs_preds, labels, reduction='mean')
 
 def distill_loss_fn(outputs, labels, t=4): 
     # use softmax with temperature t 
