@@ -35,6 +35,7 @@ parser.add_argument('--no_train', action='store_true')
 parser.add_argument('--evaluate', action='store_true')
 parser.add_argument('--use_adamw', action='store_true')
 parser.add_argument('--use_mse', action='store_true')
+parser.add_argument('--wandb_name', default=None)
 
 def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
@@ -55,7 +56,7 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     wandb.init(
     # set the wandb project where this run will be logged
     project="cs230",
-    
+    name=args.wandb_name,
     # track hyperparameters and run metadata
     config={
     "learning_rate": params.learning_rate,
@@ -193,7 +194,7 @@ def dev_test_model(model, loss_fn, dev_dataloader, test_dataloader, metrics, par
     wandb.init(
     # set the wandb project where this run will be logged
     project="cs230",
-    
+    name=args.wandb_name,
     # track hyperparameters and run metadata
     config={
     "learning_rate": params.learning_rate,
