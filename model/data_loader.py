@@ -71,22 +71,23 @@ class OCTDataset(Dataset):
         if idx % 4 == 0: 
             image_name = self.cnv_filenames[idx % len(self.cnv_filenames)]
             label = 0
-            transform_to_use = self.transform if idx < len(self.cnv_filenames) else self.augmentation_transform
+            # transform_to_use = self.transform if idx < len(self.cnv_filenames) else self.augmentation_transform
         elif idx % 4 == 1:
             image_name = self.dme_filenames[idx % len(self.dme_filenames)]
             label = 1
-            transform_to_use = self.transform if idx < len(self.dme_filenames) else self.augmentation_transform
+            # transform_to_use = self.transform if idx < len(self.dme_filenames) else self.augmentation_transform
         elif idx % 4 == 2: 
             image_name = self.drusen_filenames[idx % len(self.drusen_filenames)]
             label = 2
-            transform_to_use = self.transform if idx < len(self.drusen_filenames) else self.augmentation_transform
+            # transform_to_use = self.transform if idx < len(self.drusen_filenames) else self.augmentation_transform
         else: 
             image_name = self.normal_filenames[idx % len(self.normal_filenames)]
             label = 3
-            transform_to_use = self.transform if idx < len(self.normal_filenames) else self.augmentation_transform
+            # transform_to_use = self.transform if idx < len(self.normal_filenames) else self.augmentation_transform
         
         image = Image.open(image_name).convert("RGB")  # PIL image
-        image = transform_to_use(image)
+        image = self.transform(image)
+        # image = transform_to_use(image)
         return image, label, image_name
 
 
