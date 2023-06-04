@@ -56,7 +56,7 @@ def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, m
     wandb.init(
     # set the wandb project where this run will be logged
     project="cs230",
-    
+    name=args.wandb_name,
     # track hyperparameters and run metadata
     config={
     "learning_rate": params.learning_rate,
@@ -201,7 +201,7 @@ def dev_test_model(model, loss_fn, dev_dataloader, test_dataloader, metrics, par
     wandb.init(
     # set the wandb project where this run will be logged
     project="cs230",
-    
+    name=args.wandb_name,
     # track hyperparameters and run metadata
     config={
     "learning_rate": params.learning_rate,
