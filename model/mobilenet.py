@@ -49,7 +49,7 @@ class Net(nn.Module):
         return self.mobilenet(s)
 
 
-def loss_fn(outputs, labels):
+def ce_loss(outputs, labels):
     """
     Compute the cross entropy loss given outputs and labels.
 
@@ -61,6 +61,9 @@ def loss_fn(outputs, labels):
         loss (Variable): cross entropy loss for all images in the batch
     """
     return F.cross_entropy(outputs, labels, reduction='mean')
+
+def mse_loss(outputs, labels): 
+    return F.mse_loss(outputs, labels, reduction='mean')
 
 def distill_loss_fn(outputs, labels, t=4): 
     # use softmax with temperature t 

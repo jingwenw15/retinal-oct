@@ -84,7 +84,7 @@ class Net(nn.Module):
         return F.log_softmax(s, dim=1)
 
 
-def loss_fn(outputs, labels):
+def ce_loss(outputs, labels):
     """
     Compute the cross entropy loss given outputs and labels.
 
@@ -99,6 +99,9 @@ def loss_fn(outputs, labels):
           demonstrates how you can easily define a custom loss function.
     """
     return F.cross_entropy(outputs, labels, reduction='mean')
+
+def mse_loss(outputs, labels): 
+    return F.mse_loss(outputs, labels, reduction='mean')
 
 def distill_loss_fn(outputs, labels, t=4): 
     # use softmax with temperature t 

@@ -278,7 +278,7 @@ if __name__ == '__main__':
 
     # fetch loss function and metrics
     loss_fn = student_net.distill_loss_fn 
-    dev_loss_fn = student_net.loss_fn
+    dev_loss_fn = student_net.ce_loss
     metrics = student_net.metrics
 
     # Train the model

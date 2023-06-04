@@ -33,6 +33,8 @@ parser.add_argument('--restore_file', default=None,
 parser.add_argument('--model', default='vgg')
 parser.add_argument('--no_train', action='store_true')
 parser.add_argument('--evaluate', action='store_true')
+parser.add_argument('--use_adamw', action='store_true')
+parser.add_argument('--use_mse', action='store_true')
 
 def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
@@ -257,10 +259,11 @@ if __name__ == '__main__':
     elif args.model == "mobilenet":
         net = mobilenet
     model = net.Net(params).cuda() if params.cuda else net.Net(params)
-    optimizer = optim.Adam(model.parameters(), lr=params.learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=params.learning_rate) if not args.use_adamw else \
+                optim.AdamW(model.parameters(), lr=params.learning_rate)
 
     # fetch loss function and metrics
-    loss_fn = net.loss_fn
+    loss_fn = net.ce_loss if not args.use_mse else net.mse_loss
     metrics = net.metrics
 
     # Train the model
