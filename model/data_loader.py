@@ -19,7 +19,8 @@ eval_transformer = transforms.Compose([
 
 augmentation_transformer = transforms.Compose([
     transforms.Resize((64, 64)),  # resize the image to 64x64 (remove if images are already 64x64)
-    transforms.RandomRotation(25),
+    transforms.RandomRotation(20),
+    transforms.RandomAdjustSharpness(1.5),
     transforms.ToTensor() 
 ])
 
@@ -46,6 +47,7 @@ class OCTDataset(Dataset):
         self.drusen_filenames = [f for i, f in enumerate(self.filenames) if self.labels[i] == 2]
         self.normal_filenames = [f for i, f in enumerate(self.filenames) if self.labels[i] == 3]
         self.transform = transform
+        self.augmentation_transform = augmentation_transformer
 
     def __len__(self):
         # return size of dataset
@@ -65,22 +67,26 @@ class OCTDataset(Dataset):
         """
         image_name = None
         label = None
+        transform_to_use = None 
         if idx % 4 == 0: 
             image_name = self.cnv_filenames[idx % len(self.cnv_filenames)]
             label = 0
+            transform_to_use = self.transform if idx < len(self.cnv_filenames) else self.augmentation_transform
         elif idx % 4 == 1:
             image_name = self.dme_filenames[idx % len(self.dme_filenames)]
             label = 1
+            transform_to_use = self.transform if idx < len(self.dme_filenames) else self.augmentation_transform
         elif idx % 4 == 2: 
             image_name = self.drusen_filenames[idx % len(self.drusen_filenames)]
             label = 2
+            transform_to_use = self.transform if idx < len(self.drusen_filenames) else self.augmentation_transform
         else: 
             image_name = self.normal_filenames[idx % len(self.normal_filenames)]
             label = 3
+            transform_to_use = self.transform if idx < len(self.normal_filenames) else self.augmentation_transform
+        
         image = Image.open(image_name).convert("RGB")  # PIL image
-        # image = Image.open(self.filenames[idx]).convert("RGB")  # PIL image
-        image = self.transform(image)
-        # return image, self.labels[idx]
+        image = transform_to_use(image)
         return image, label, image_name
 
 
@@ -103,7 +109,7 @@ def fetch_dataloader(types, data_dir, params):
             path = os.path.join(data_dir, "{}".format(split))
 
             if split == 'train':
-                dl = DataLoader(OCTDataset(path, augmentation_transformer), batch_size=params.batch_size, shuffle=True,
+                dl = DataLoader(OCTDataset(path, train_transformer), batch_size=params.batch_size, shuffle=True,
                                         num_workers=params.num_workers,
                                         pin_memory=params.cuda)
             else:
