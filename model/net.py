@@ -101,13 +101,12 @@ def ce_loss(outputs, labels):
     return F.cross_entropy(outputs, labels, reduction='mean')
 
 
-def distill_loss_fn(outputs, labels, t=4): 
+def distill_loss_fn(student_logits, teacher_logits, t=4): 
     # use softmax with temperature t 
     # reference: https://josehoras.github.io/knowledge-distillation/
-    student_weights = F.softmax(outputs / t, dim=1)
-    teacher_weights = F.softmax(labels / t, dim=1)
+    student_weights = F.softmax(student_logits / t, dim=1)
+    teacher_weights = F.softmax(teacher_logits / t, dim=1)
     return F.mse_loss(student_weights, teacher_weights, reduction='mean')
-# TODO: match outputs of any layer in general after both layers (after ReLU layer) take middle layers, proportionately 
 
 def accuracy(outputs, labels, split=None, images_name=None, fd=None):
     """

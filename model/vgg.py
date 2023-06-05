@@ -25,10 +25,15 @@ class Net(nn.Module):
         self.vgg = models.vgg16(weights=models.VGG16_Weights.DEFAULT)
         in_features = self.vgg.classifier[6].in_features
 
-        # freeze all layers except last 
-        # for param in self.vgg.parameters():
-        #     param.requires_grad = False 
-
+        # freeze layers 
+        if params.freeze == "all": 
+            for param in self.resnet.parameters():
+                param.requires_grad = False 
+        elif params.freeze == "some": 
+            for name, param in self.resnet.named_parameters():
+                if "layer4" not in name and "fc" not in name: 
+                    param.requires_grad = False
+                    
         # replace FC layer with our layer 
         self.vgg.classifier[6] = nn.Linear(in_features=in_features, out_features=4, device=device)
         self.vgg = self.vgg.to(device)
