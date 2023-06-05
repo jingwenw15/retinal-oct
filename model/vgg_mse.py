@@ -69,7 +69,7 @@ def ce_loss(outputs, labels):
     return F.cross_entropy(outputs, labels, reduction='mean')
 
 def mse_loss(outputs, labels):
-    return F.mse_loss(outputs.float(), labels.float(), reduction='mean')
+    return F.mse_loss(torch.reshape(outputs.float(), (-1,)), labels.float(), reduction='mean')
 
 def accuracy(outputs, labels, split=None, images_name=None, fd=None):
     """
@@ -82,7 +82,7 @@ def accuracy(outputs, labels, split=None, images_name=None, fd=None):
     Returns: (float) accuracy in [0,1]
     """
     # outputs = np.argmax(outputs, axis=1)
-    outputs = np.around(outputs, 0)
+    outputs = np.around(outputs, 0).reshape((-1,))
     if split: 
         for o, l, filename in zip(outputs, labels, images_name):
             fd.write(filename + ',' + str(o) + ',' + str(l) + '\n')
@@ -91,25 +91,25 @@ def accuracy(outputs, labels, split=None, images_name=None, fd=None):
 
 def cnv_acc(outputs, labels): 
     # outputs = np.argmax(outputs, axis=1) 
-    outputs = np.around(outputs, 0)
+    outputs = np.around(outputs, 0).reshape((-1,))
     labeled_cnv = (labels == 0)
     return np.sum(outputs[labeled_cnv] == 0)/float(np.sum(labeled_cnv))    
 
 def dme_acc(outputs, labels): 
     # outputs = np.argmax(outputs, axis=1) 
-    outputs = np.around(outputs, 0)
+    outputs = np.around(outputs, 0).reshape((-1,))
     labeled_dme = (labels == 1)
     return np.sum(outputs[labeled_dme] == 1)/float(np.sum(labeled_dme))    
 
 def drusen_acc(outputs, labels): 
     # outputs = np.argmax(outputs, axis=1) 
-    outputs = np.around(outputs, 0)
+    outputs = np.around(outputs, 0).reshape((-1,))
     labeled_drusen = (labels == 2)
     return np.sum(outputs[labeled_drusen] == 2)/float(np.sum(labeled_drusen))    
 
 def normal_acc(outputs, labels): 
     # outputs = np.argmax(outputs, axis=1) 
-    outputs = np.around(outputs, 0)
+    outputs = np.around(outputs, 0).reshape((-1,))
     labeled_normal = (labels == 3)
     return np.sum(outputs[labeled_normal] == 3)/float(np.sum(labeled_normal))    
 
