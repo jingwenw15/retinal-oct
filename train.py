@@ -39,6 +39,7 @@ parser.add_argument('--evaluate', action='store_true')
 parser.add_argument('--use_adamw', action='store_true')
 parser.add_argument('--use_mse', action='store_true')
 parser.add_argument('--wandb_name', default=None)
+parser.add_argument('--no_pretrain_weights', action='store_true')
 
 def train(model, optimizer, loss_fn, dataloader, metrics, params, model_name):
     """Train the model on `num_steps` batches
@@ -266,7 +267,10 @@ if __name__ == '__main__':
         net = vgg_mse
     elif args.model == "resnet_mse": 
         net = resnet_mse
+        
     model = net.Net(params).cuda() if params.cuda else net.Net(params)
+    if args.no_pretrain_weights: model = net.Net(params, False).cuda() if params.cuda else net.Net(params, False)
+    
     optimizer = optim.Adam(model.parameters(), lr=params.learning_rate) if not args.use_adamw else \
                 optim.AdamW(model.parameters(), lr=params.learning_rate)
 

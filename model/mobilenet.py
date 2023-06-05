@@ -23,8 +23,13 @@ class Net(nn.Module):
 
         if use_pretrained: 
             self.mobilenet = models.mobilenet_v2(weights='IMAGENET1K_V1')
+            # freeze layers 
+            if params.freeze == "all": 
+                for param in self.mobilenet.parameters():
+                    param.requires_grad = False 
         else: 
             self.mobilenet = models.mobilenet_v2()
+
         in_features = self.mobilenet.classifier[1].in_features
 
         # replace FC layer with our layer 
@@ -116,3 +121,5 @@ metrics = {
     'drusen': drusen_acc,
     'normal': normal_acc
 }
+
+t = Net(params={})
