@@ -30,7 +30,7 @@ class Net(nn.Module):
         #     param.requires_grad = False 
 
         # replace FC layer with our layer 
-        self.vgg.classifier[6] = nn.Linear(in_features=in_features, out_features=4, device=device)
+        self.vgg.classifier[6] = nn.Linear(in_features=in_features, out_features=1, device=device)
         self.vgg = self.vgg.to(device)
 
         
