@@ -69,7 +69,7 @@ def ce_loss(outputs, labels):
     return F.cross_entropy(outputs, labels, reduction='mean')
 
 def mse_loss(outputs, labels): 
-    outputs_preds = torch.argmax(outputs, dim=1) 
+    outputs_preds = torch.argmax(outputs, dim=1).float()
     return F.mse_loss(outputs_preds, labels, reduction='mean')
 
 
