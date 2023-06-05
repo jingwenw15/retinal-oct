@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sbn
 
 def analyze(filename): 
     f = open(filename, 'r')
@@ -15,6 +17,8 @@ def analyze(filename):
         cm[output, label] += 1
     cm = cm / np.sum(cm, axis=0)
     print(correct / total)
-    print(cm)
+    sbn.heatmap(cm, annot=True)
+    plt.show()
+    
 
 analyze('predictions/vgg_dev.csv')
