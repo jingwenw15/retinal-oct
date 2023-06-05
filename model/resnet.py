@@ -69,8 +69,6 @@ def ce_loss(outputs, labels):
     """
     return F.cross_entropy(outputs, labels, reduction='mean')
 
-def mse_loss(outputs, labels): 
-    return F.mse_loss(outputs, labels, reduction='mean')
 
 def accuracy(outputs, labels, split=None, images_name=None, fd=None):
     """

@@ -6,5 +6,6 @@
     "num_channels": 32,
     "save_summary_steps": 100,
     "num_workers": 4,
-    "freeze": "none"
+    "freeze": "none",
+    "mse": true
 }

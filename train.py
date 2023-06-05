@@ -16,6 +16,9 @@ import model.vgg as vgg
 import model.net as custom_net
 import model.mobilenet as mobilenet
 import model.resnet_small as resnet_small
+import model.vgg_mse as vgg_mse
+
+
 import model.data_loader as data_loader
 from evaluate import evaluate
 
@@ -259,6 +262,8 @@ if __name__ == '__main__':
         net = custom_net
     elif args.model == "mobilenet":
         net = mobilenet
+    elif args.model == "vgg_mse": 
+        net = vgg_mse
     model = net.Net(params).cuda() if params.cuda else net.Net(params)
     optimizer = optim.Adam(model.parameters(), lr=params.learning_rate) if not args.use_adamw else \
                 optim.AdamW(model.parameters(), lr=params.learning_rate)
