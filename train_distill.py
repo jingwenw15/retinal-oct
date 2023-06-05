@@ -36,6 +36,7 @@ parser.add_argument('--teacher', default='resnet')
 parser.add_argument('--no_train', action='store_true')
 parser.add_argument('--evaluate', action='store_true')
 parser.add_argument('--wandb_name', default=None)
+parser.add_argument('--use_distill_v2', action='store_true')
 
 
 def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, metrics, params, model_name):
@@ -89,7 +90,7 @@ def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, m
             # compute model output and loss
             output_batch = student(train_batch)
             target_values = teacher(train_batch)
-            loss = loss_fn(output_batch, target_values)
+            loss = loss_fn(output_batch, target_values) if not args.use_distill_v2 else loss_fn(output_batch, target_values, labels_batch)
 
             # clear previous gradients, compute gradients of all variables wrt loss
             optimizer.zero_grad()
@@ -278,7 +279,7 @@ if __name__ == '__main__':
     teacher_optimizer = optim.Adam(teacher.parameters(), lr=teacher_params.learning_rate)
 
     # fetch loss function and metrics
-    loss_fn = student_net.distill_loss_fn 
+    loss_fn = student_net.distill_loss_fn if not args.use_distill_v2 else student_net.distill_loss_fn_v2
     dev_loss_fn = student_net.ce_loss
     metrics = student_net.metrics
 

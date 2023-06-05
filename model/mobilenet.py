@@ -75,6 +75,14 @@ def distill_loss_fn(student_logits, teacher_logits, t=4):
     teacher_weights = F.softmax(teacher_logits / t, dim=1)
     return F.mse_loss(student_weights, teacher_weights, reduction='mean')
 
+def distill_loss_fn_v2(student_logits, teacher_logits, labels, t=4): 
+    # use softmax with temperature t 
+    # reference: https://josehoras.github.io/knowledge-distillation/
+    student_weights = F.softmax(student_logits / t, dim=1)
+    teacher_weights = F.softmax(teacher_logits / t, dim=1)
+    student_weights_v2 = F.softmax(student_logits, dim=1)
+    return F.mse_loss(student_weights, teacher_weights, reduction='mean') + F.cross_entropy(student_weights_v2, labels, reduction='mean')
+
 def accuracy(outputs, labels, split=None, images_name=None, fd=None):
     """
     Compute the accuracy, given the outputs and labels for all images.
