@@ -121,4 +121,3 @@ metrics = {
     'normal': normal_acc
 }
 
-t = Net({})
