@@ -27,13 +27,13 @@ class Net(nn.Module):
 
         # freeze layers 
         if params.freeze == "all": 
-            for param in self.resnet.parameters():
+            for param in self.vgg.parameters():
                 param.requires_grad = False 
         elif params.freeze == "some": 
-            for name, param in self.resnet.named_parameters():
-                if "layer4" not in name and "fc" not in name: 
+            for name, param in self.vgg.named_parameters():
+                if "classifier" not in name: 
                     param.requires_grad = False
-                    
+
         # replace FC layer with our layer 
         self.vgg.classifier[6] = nn.Linear(in_features=in_features, out_features=4, device=device)
         self.vgg = self.vgg.to(device)
@@ -121,3 +121,4 @@ metrics = {
     'normal': normal_acc
 }
 
+t = Net({})
