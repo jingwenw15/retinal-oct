@@ -54,6 +54,7 @@ def train(student, teacher, optimizer, teacher_optimizer, loss_fn, dataloader, m
 
     # set model to training mode
     student.train()
+    teacher.eval()
 
     wandb.init(
     # set the wandb project where this run will be logged
