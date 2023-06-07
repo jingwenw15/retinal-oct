@@ -2,6 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sbn
 
+'''
+Analyze prediction csv files on the dev and test sets using secondary metrics. 
+Also provide visualizations. 
+'''
+
+
 def analyze(filename): 
     f = open(filename, 'r')
     total, correct = 0, 0 
@@ -34,3 +40,4 @@ def analyze(filename):
 
 analyze('predictions/mobilenet_knowledge_test_s_mb2_t_vgg.csv')
 analyze('predictions/vgg_test.csv')
+analyze('predictions/custom_test_net_4.csv')

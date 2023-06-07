@@ -1,4 +1,6 @@
-"""Train the model KNOWLEDGE DISTILLATION"""
+"""
+Train the model using KNOWLEDGE DISTILLATION. 
+"""
 
 import argparse
 import logging
@@ -21,7 +23,6 @@ from evaluate import evaluate
 import wandb
 
 # reference: https://josehoras.github.io/knowledge-distillation/
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data',

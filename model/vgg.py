@@ -91,6 +91,7 @@ def accuracy(outputs, labels, split=None, images_name=None, fd=None):
 
     return np.sum(outputs==labels)/float(labels.size)
 
+# NOTE: these functions say "acc" but I actually mean "recall"
 def cnv_acc(outputs, labels): 
     outputs = np.argmax(outputs, axis=1) 
     labeled_cnv = (labels == 0)

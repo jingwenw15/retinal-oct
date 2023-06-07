@@ -80,7 +80,7 @@ def evaluate(model, loss_fn, dataloader, metrics, params, split='dev', write=Fal
 if __name__ == '__main__':
     """
         Evaluate the model on the test set.
-        TODO: delete this bc we already wrote our own version
+        (Not used because we write our own evaluate function in train.py)
     """
     # Load the parameters
     args = parser.parse_args()
