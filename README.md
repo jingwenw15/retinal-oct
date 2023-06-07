@@ -1,6 +1,9 @@
 # Retinal OCT Disease Prediction - PyTorch
 
+## Dataset 
+[Retinal OCT Dataset](https://data.mendeley.com/datasets/rscbjbr9sj/2)
 
+## Code
 Citation: Adapted from [CS230-Code-Examples/PyTorch/Vision](https://github.com/cs230-stanford/cs230-code-examples/tree/master/pytorch/vision).
 
 
