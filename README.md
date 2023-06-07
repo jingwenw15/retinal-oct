@@ -14,6 +14,6 @@ The model folder contains all the models used (including custom net, transfer le
 
 preprocess_data.py contains the data preprocessing code to split the dataset. 
 
-build_dataset.py contains the dataloader code as well as data balancing to resolve the data imbalance issue. 
+model/data_loader.py contains the dataloader code as well as data balancing to resolve the data imbalance issue. 
 
 analyze_predictions.py evaluates secondary metrics for the test set predictions of models, and provides visualizations (confusion matrix). 
